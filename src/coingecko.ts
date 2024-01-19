@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
-import fs from 'fs';
+import * as fs from 'fs';
 import { fileURLToPath } from 'url';
-import path from 'path';
-import dotenv from 'dotenv';
+import * as path from 'path';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { Config } from './types/configTypes.js';
@@ -10,10 +10,10 @@ import { Config } from './types/configTypes.js';
 const configModule = await import('../config.json', {
   assert: { type: 'json' }
 });
-const configuration: Config = configModule.default as Config;
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+console.log(configModule);
 
-console.log(configuration.apiConfig.coingeckoApiUrl);
+const configuration: Config = (configModule as unknown as { default: Config }).default;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 interface CoinGeckoResponse {
   [key: string]: { usd: number };

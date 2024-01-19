@@ -1,8 +1,10 @@
 // index.ts
-import fs from 'fs';
+import * as fs from 'fs';
 import { fileURLToPath } from 'url';
-import path from 'path';
+import * as path from 'path';
+import * as dotenv from 'dotenv';
 import { getPrices, Prices } from './coingecko.js'; // Make sure to export Prices in coingecko.ts
+dotenv.config();
 
 // Construct the equivalent of __dirname
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
