@@ -1,0 +1,50 @@
+{
+  "name": "galactic-prices",
+  "version": "0.1.0",
+  "description": "Collects pricing data for the star atlas ecosystem.",
+  "main": "lib/index.js",
+  "type": "module",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "keywords": [
+    "Star Atlas",
+    "StarAtlas",
+    "Atlas",
+    "Pricing",
+    "Data",
+    "POLIS",
+    "Blockchain Gaming",
+    "Solana",
+    "Economy",
+    "Analysis",
+    "Blockchain Gaming",
+    "Galactic Marketplace",
+    "Crypto",
+    "Virtual Economy",
+    "Intelligence",
+    "Asset Pricing",
+    "Digital Assets",
+    "NFT",
+    "MMO Game Economics",
+    "Star Atlas Economy",
+    "CHOUTA",
+    "Galia"
+  ],
+  "author": "CHOUTA",
+  "license": "MIT",
+  "dependencies": {
+    "@solana/web3.js": "^1.88.0",
+    "@staratlas/galactic-marketplace": "^0.9.7",
+    "@types/node-fetch": "^2.6.10",
+    "dotenv": "^16.3.1",
+    "jest": "^29.7.0",
+    "node-fetch": "^3.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,20 @@
+{
+    "apiConfig": {
+      "coingeckoApiUrl": "https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd"
+    },
+    "caching": {
+      "_comment": "Numbers are in seconds. 86400 seconds = 1 day. 3600 seconds = 1 hour. 60 seconds = 1 minute.",
+      "cachePriceExpiry": 60,
+      "cacheExpiryPermanent": 86400 
+    },
+    "tokenAddresses": {
+      "_comment": "Token addresses referencing the Solana mainnet. These are used to look up token prices from specific DEXs or markets.",
+      "atlasTokenAddress": "ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx",
+      "polisTokenAddress": "poLisWXnNRwC6oBu1vHiuKQzFjGL4XDSu4g9qjz9qVk",
+      "puriTokenAddress": "CzLWmvjtj5bp9YEWkzzBnuWovVtogeuchFu5GeFh68hB",
+      "bonkTokenAddress": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      "usdcTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "solDexTokenAddress": "So11111111111111111111111111111111111111112"
+    }
+  }
+  
