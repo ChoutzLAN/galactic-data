@@ -2,7 +2,7 @@
 Dockerfile
 .dockerignore
 
-# Ignore build artifacts
+# Ignore build artifacts and secrets folders
 lib/
 keys/
 
