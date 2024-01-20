@@ -17,7 +17,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '16'
+        node-version: '21.2.0'
 
     - name: Install dependencies
       run: npm ci
@@ -25,21 +25,35 @@ jobs:
     - name: Build
       run: npm run build
 
-    - name: Docker Login
-      if: github.ref == 'refs/heads/main'
-      run: echo ${{ secrets.GCR_JSON_KEY }} | docker login -u _json_key --password-stdin https://gcr.io
+    # Authenticate with Google Cloud Artifact Registry
+    - name: Set up Google Cloud
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        project_id: ${{ env.GCP_PROJECT }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+      env:
+        GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+        GCP_PROJECT: ${{ env.GCP_PROJECT }}
 
+    # Configure Docker to use the gcloud command-line tool as a credential helper
+    - name: Configure Docker
+      run: gcloud auth configure-docker australia-southeast1-docker.pkg.dev
+
+    # Build and push the Docker image to Google Cloud Artifact Registry
     - name: Build and push Docker image
       if: github.ref == 'refs/heads/main'
       run: |
-        docker build -t gcr.io/galactic-prices/galactic-prices:${{ github.sha }} .
-        docker push gcr.io/galactic-prices/galactic-prices:${{ github.sha }}
+        docker build -t australia-southeast1-docker.pkg.dev/${{ env.GCP_PROJECT }}/galactic-prices-repo/galactic-prices:${{ github.sha }} .
+        docker push australia-southeast1-docker.pkg.dev/${{ env.GCP_PROJECT }}/galactic-prices-repo/galactic-prices:${{ github.sha }}
+      env:
+        GCP_PROJECT: ${{ env.GCP_PROJECT }}
 
+    # Deploy the image to Google Cloud Run
     - name: Deploy to Cloud Run
       if: github.ref == 'refs/heads/main'
       run: |
-        gcloud run deploy galactic-prices-service --image gcr.io/${{ env.GCP_PROJECT }}/galactic-prices:${{ github.sha }} --platform managed --region australia-southeast1 --project ${{ env.GCP_PROJECT }}
+        gcloud run deploy galactic-prices-gcloud-service --image australia-southeast1-docker.pkg.dev/${{ env.GCP_PROJECT }}/galactic-prices-repo/galactic-prices:${{ github.sha }} --platform managed --region australia-southeast1 --project ${{ env.GCP_PROJECT }}
       env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
         GCP_PROJECT: ${{ env.GCP_PROJECT }}
