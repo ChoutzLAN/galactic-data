@@ -38,8 +38,8 @@ jobs:
     - name: Deploy to Cloud Run
       if: github.ref == 'refs/heads/main'
       run: |
-        gcloud run deploy galactic-prices-service --image gcr.io/galactic-prices/galactic-prices:${{ github.sha }} --platform managed --region your-region --project galactic-prices
+        gcloud run deploy galactic-prices-service --image gcr.io/${{ env.GCP_PROJECT }}/galactic-prices:${{ github.sha }} --platform managed --region australia-southeast1 --project ${{ env.GCP_PROJECT }}
       env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-        GCP_PROJECT: ${{ variables.GCP_PROJECT }}
+        GCP_PROJECT: ${{ env.GCP_PROJECT }}
