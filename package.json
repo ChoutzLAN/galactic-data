@@ -10,7 +10,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "start": "npm run build && node lib/index.js"
+    "start": "npm run build && node --no-warnings lib/index.js"
   },
   "keywords": [
     "Star Atlas",
@@ -34,9 +34,10 @@
     "MMO Game Economics",
     "Star Atlas Economy",
     "CHOUTA",
+    "choutaLAN",
     "Galia"
   ],
-  "author": "CHOUTA",
+  "author": "choutaLAN",
   "license": "MIT",
   "dependencies": {
     "@solana/web3.js": "^1.88.0",

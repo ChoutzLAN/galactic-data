@@ -6,6 +6,14 @@ import * as dotenv from 'dotenv';
 import { getPrices, Prices } from './coingecko.js'; // Make sure to export Prices in coingecko.ts
 dotenv.config();
 
+//import { Config } from './types/configTypes.js';
+
+// // Dynamic import of JSON file for configuration
+// const configModule = await import('../config.json', {
+//   assert: { type: 'json' }
+// });
+// const configuration: Config = (configModule as unknown as { default: Config }).default;
+
 // Construct the equivalent of __dirname
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,10 +47,10 @@ if (!fs.existsSync(dataDir)) {
       pricesData = await getPrices(); // Create new data
     }
 
-    // Log the prices data to the console
-    if (pricesData) {
-      console.log('Token Prices:', pricesData);
-    }
+    // // Log the prices data to the console
+    // if (pricesData) {
+    //   console.log('Token Prices:', pricesData);
+    // }
   } catch (error) {
     console.error('An error occurred:', error);
   }

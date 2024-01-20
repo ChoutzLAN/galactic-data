@@ -10,8 +10,6 @@ import { Config } from './types/configTypes.js';
 const configModule = await import('../config.json', {
   assert: { type: 'json' }
 });
-console.log(configModule);
-
 const configuration: Config = (configModule as unknown as { default: Config }).default;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

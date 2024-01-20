@@ -1,5 +1,6 @@
 {
     "apiConfig": {
+      "_comment": "Coingecko API url that is used to get the price of specified tokens in USD.",
       "coingeckoApiUrl": "https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd"
     },
     "caching": {
@@ -15,6 +16,7 @@
       "bonkTokenAddress": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
       "usdcTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
       "solDexTokenAddress": "So11111111111111111111111111111111111111112"
-    }
+    },
+    "suppressWarnings": true
   }
   

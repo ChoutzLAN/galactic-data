@@ -18,8 +18,10 @@ export interface ApiConfig {
   }
   
   export interface Config {
+    [x: string]: any;
     apiConfig: ApiConfig;
     caching: Omit<CachingConfig, '_comment'>;
     tokenAddresses: Omit<TokenAddresses, '_comment'>;
+    suppressWarnings: boolean;
   }
   
