@@ -35,12 +35,11 @@ jobs:
       with:
         workload_identity_provider: 'projects/${{ env.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ env.GCP_POOL_ID }}/providers/${{ env.GCP_PROVIDER_ID }}'
         service_account: ${{ secrets.GCP_SA_KEY }}
-  
       env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        GCP_PROJECT: ${{ env.GCP_PROJECT }}
         GCP_PROJECT_NUMBER: ${{ env.GCP_PROJECT_NUMBER }}
         GCP_POOL_ID: ${{ env.GCP_POOL_ID }}
+        GCP_PROVIDER_ID: ${{ env.GCP_PROVIDER_ID }}
 
     # Configure Docker to use the gcloud command-line tool as a credential helper
     - name: Configure Docker
