@@ -1,0 +1,45 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v2
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+
+    - name: Docker Login
+      if: github.ref == 'refs/heads/main'
+      run: echo ${{ secrets.GCR_JSON_KEY }} | docker login -u _json_key --password-stdin https://gcr.io
+
+    - name: Build and push Docker image
+      if: github.ref == 'refs/heads/main'
+      run: |
+        docker build -t gcr.io/galactic-prices/galactic-prices:${{ github.sha }} .
+        docker push gcr.io/galactic-prices/galactic-prices:${{ github.sha }}
+
+    - name: Deploy to Cloud Run
+      if: github.ref == 'refs/heads/main'
+      run: |
+        gcloud run deploy galactic-prices-service --image gcr.io/galactic-prices/galactic-prices:${{ github.sha }} --platform managed --region your-region --project galactic-prices
+      env:
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+        GCP_PROJECT: galactic-prices
