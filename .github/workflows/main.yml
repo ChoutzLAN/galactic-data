@@ -42,4 +42,4 @@ jobs:
       env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-        GCP_PROJECT: galactic-prices
+        GCP_PROJECT: ${{ variables.GCP_PROJECT }}
