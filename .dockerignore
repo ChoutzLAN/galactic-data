@@ -1,4 +1,10 @@
-# Ignore build artifacts and secrets folders
+# Ignore files and directories starting with a dot
+.*
+
+# Ignore node_modules directory
+node_modules/
+
+# Ignore build artifacts
 lib/
 keys/
 
