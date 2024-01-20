@@ -33,13 +33,15 @@ jobs:
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
-        workload_identity_provider: projects/466315699107/locations/global/workloadIdentityPools/galactic-prices-pool/providers/github-actions-provider
+        workload_identity_provider: projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.GCP_POOL_ID }}/providers/${{ secrets.GCP_PROVIDER_ID }}
         service_account: ${{ secrets.GCP_SA_KEY }}
+        audience: ${{ secrets.GCP_AUDIENCE }}
       env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
         GCP_POOL_ID: ${{ secrets.GCP_POOL_ID }}
         GCP_PROVIDER_ID: ${{ secrets.GCP_PROVIDER_ID }}
+        GCP_AUDIENCE: ${{ secrets.GCP_AUDIENCE }} 
 
     # Configure Docker to use the gcloud command-line tool as a credential helper
     - name: Configure Docker
