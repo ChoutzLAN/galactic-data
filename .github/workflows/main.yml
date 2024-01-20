@@ -47,7 +47,7 @@ jobs:
       env:
         GCP_REGION: ${{ env.GCP_REGION }}
 
-    # Build and push the Docker image to Google Cloud Artifact Registry
+    # Build and push the Docker image to Google Cloud Artifact Registry 
     - name: Build and push Docker image
       if: github.ref == 'refs/heads/main'
       run: |
