@@ -30,10 +30,10 @@ jobs:
       uses: google-github-actions/auth@v2
       with:
         workload_identity_provider: 'projects/${{ env.GCP_PROJECT }}/locations/global/workloadIdentityPools/${{ env.GCP_POOL_ID }}/providers/${{ env.GCP_PROVIDER_ID }}'
-        service_account: ${{ secrets.GCP_SA_EMAIL }}
+        service_account: ${{ secrets.GCP_SA_KEY }}
   
       env:
-        GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCP_PROJECT: ${{ env.GCP_PROJECT }}
         GCP_PROVIDER_ID: ${{ env.GCP_PROVIDER_ID }}
         GCP_POOL_ID: ${{ env.GCP_POOL_ID }}
@@ -62,7 +62,6 @@ jobs:
       run: |
         gcloud run deploy galactic-prices-gcloud-service --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.GCP_REPO }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }} --platform managed --region ${{ env.GCP_REGION }} --project ${{ env.GCP_PROJECT }}
       env:
-        GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
         GCP_PROJECT: ${{ env.GCP_PROJECT }}
         GCP_REGION: ${{ env.GCP_REGION }}
         GCP_REPO: ${{ env.GCP_REPO }}
