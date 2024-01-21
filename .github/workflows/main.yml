@@ -45,10 +45,12 @@ jobs:
     # Configure Docker to use the gcloud command-line tool as a credential helper
     - name: Configure Docker
       run: |
-        echo "${{ secrets.GCP_SA_KEY }}" > /tmp/gcp-key.json
+        echo ${{ secrets.GCP_SA_KEY_BASE64 }} | base64 --decode > /tmp/gcp-key.json
         gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
         gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
-
+      env:
+        GCP_SA_KEY_BASE64: ${{ secrets.GCP_SA_KEY_BASE64 }}
+        
     # Build and push the Docker image to Google Cloud Artifact Registry 
     - name: Build and push Docker image
       if: github.ref == 'refs/heads/main'
