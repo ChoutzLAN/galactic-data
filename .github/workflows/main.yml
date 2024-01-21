@@ -45,7 +45,8 @@ jobs:
     # Configure Docker to use the gcloud command-line tool as a credential helper
     - name: Configure Docker
       run: |
-        gcloud auth login --brief --cred-file=${{ secrets.GCP_SA_KEY }}
+        echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > /tmp/gcp-key.json
+        gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
         gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
       env:
         GCP_REGION: ${{ secrets.GCP_REGION }}
