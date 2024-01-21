@@ -35,7 +35,6 @@ jobs:
       with:
         workload_identity_provider: projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.GCP_POOL_ID }}/providers/${{ secrets.GCP_PROVIDER_ID }}
         service_account: ${{ secrets.GCP_SA_KEY }}
-        #token_format: access_token
       env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
@@ -45,7 +44,9 @@ jobs:
 
     # Configure Docker to use the gcloud command-line tool as a credential helper
     - name: Configure Docker
-      run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+      run: |
+        gcloud auth login --brief --cred-file=${{ secrets.GCP_SA_KEY }}
+        gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
       env:
         GCP_REGION: ${{ secrets.GCP_REGION }}
 
@@ -57,7 +58,6 @@ jobs:
         docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_REPO }}/${{ secrets.DOCKER_IMAGE }}:${{ github.sha }}
       env:
         GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-        GCP_REGION: ${{ secrets.GCP_REGION }}
         GCP_REPO: ${{ secrets.GCP_REPO }}
         DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }} 
 
@@ -66,9 +66,3 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: |
         gcloud run deploy galactic-prices-gcloud-service --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_REPO }}/${{ secrets.DOCKER_IMAGE }}:${{ github.sha }} --platform managed --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT }}
-      env:
-        GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-        GCP_REGION: ${{ secrets.GCP_REGION }}
-        GCP_REPO: ${{ secrets.GCP_REPO }}
-        DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
-
