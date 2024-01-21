@@ -35,7 +35,7 @@ jobs:
       with:
         workload_identity_provider: projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.GCP_POOL_ID }}/providers/${{ secrets.GCP_PROVIDER_ID }}
         service_account: ${{ secrets.GCP_SA_KEY }}
-        # audience: 'https://github.com/choutaLAN/galactic-prices.git'
+        token_format: access_token
       env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}

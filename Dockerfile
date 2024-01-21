@@ -1,4 +1,4 @@
-# Use the official Node.js 16 image as a parent image
+# Use the official Node.js 21 image as a parent image
 FROM node:21
 
 # Set the working directory in the container
