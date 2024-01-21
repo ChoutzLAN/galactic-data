@@ -36,9 +36,11 @@ jobs:
         workload_identity_provider: projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.GCP_POOL_ID }}/providers/${{ secrets.GCP_PROVIDER_ID }}
         service_account: ${{ secrets.GCP_SA_KEY }}
 
-    # Configure Docker to use the gcloud command-line tool as a credential helper
-    - name: Configure Docker
-      run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+    # Refresh the authentication token and configure Docker to use the gcloud command-line tool as a credential helper
+    - name: Refresh Auth Token and Configure Docker
+      run: |
+        gcloud auth print-access-token
+        gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
 
     # Build and push the Docker image to Google Cloud Artifact Registry 
     - name: Build and push Docker image
