@@ -55,33 +55,33 @@ if (!fs.existsSync(dataDir)) {
   }
 }
 
-// Create a simple HTTP server that responds with the token prices JSON data
-const server = http.createServer(async (req, res) => {
-  // Update token prices if needed
-  const filePath = path.join(__dirname, 'data', 'tokenPricesData.json');
-
-  await updateTokenPricesIfNeeded();
-
-  // Read the token prices data from the file
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      res.writeHead(500);
-      res.end('Error reading the token prices file.');
-      return;
-    }
-
-    // Set the Content-Type header and serve the JSON data
+async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+  try {
+    await updateTokenPricesIfNeeded();
+    const filePath = path.join(__dirname, 'data', 'tokenPricesData.json');
+    
+    const data = fs.readFileSync(filePath, 'utf8');
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);
     res.end(data);
+  } catch (error) {
+    console.error('Error handling request:', error);
+    res.writeHead(500);
+    res.end('Internal Server Error');
+  }
+}
+
+const server = http.createServer((req, res) => {
+  handleRequest(req, res).catch(error => {
+    console.error('Unhandled error:', error);
+    if (!res.headersSent) {
+      res.writeHead(500);
+      res.end('Internal Server Error');
+    }
   });
 });
 
-// Specify the port to listen on
-const PORT = process.env.PORT || 8080;
-
-// Start the server
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
