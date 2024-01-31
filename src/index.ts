@@ -7,15 +7,7 @@ import { getPrices, Prices } from './coingecko.js'; // Make sure to export Price
 import * as http from 'http';
 dotenv.config();
 
-//import { Config } from './types/configTypes.js';
-
-// // Dynamic import of JSON file for configuration
-// const configModule = await import('../config.json', {
-//   assert: { type: 'json' }
-// });
-// const configuration: Config = (configModule as unknown as { default: Config }).default;
-
-// Construct the equivalent of __dirname
+// Get the directory name of the current module
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 async function updateTokenPricesIfNeeded(): Promise<void> {
   const filePath = path.join(__dirname, 'data', 'tokenPricesData.json');
@@ -78,7 +70,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 // Specify the port to listen on
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 // Start the server
 server.listen(PORT, () => {

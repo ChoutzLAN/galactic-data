@@ -4,14 +4,18 @@ FROM node:21
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Create a non-root user and switch to it for better security
+RUN useradd -m myappuser
+USER myappuser
 
-# Install dependencies
-RUN npm install
+# Copy package.json and package-lock.json
+COPY --chown=myappuser:myappuser package*.json ./
+
+# Install only production dependencies
+RUN npm install --only=production
 
 # Copy the source code into the container
-COPY . .
+COPY --chown=myappuser:myappuser . .
 
 # If you have a tsconfig.production.json, you might want to use that instead.
 RUN npm run build
