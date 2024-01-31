@@ -1,30 +1,33 @@
-# Start from the official Node.js image
+# Use the official Node.js 21 image as a parent image
 FROM node:21
 
-# Create a non-root user for better security
-RUN useradd -m nodeuser
-
-# Create the working directory and ensure proper permissions
-RUN mkdir -p /usr/src/app && chown nodeuser:nodeuser /usr/src/app
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
+# Create a non-root user and switch to it for better security
+# Make sure to create the user before setting the working directory
+RUN useradd -m myappuser
+
+# Change the ownership of the work directory to the new user
+RUN chown myappuser:myappuser /usr/src/app
+
+# Copy package.json and package-lock.json
+COPY --chown=myappuser:myappuser package*.json ./
+
 # Use the non-root user
-USER nodeuser
+USER myappuser
 
-# Copy package.json, package-lock.json (if available), and tsconfig.json
-COPY --chown=nodeuser:nodeuser package*.json tsconfig.json ./
+# Install dependencies
+RUN npm install --only=production
 
-# Install local dependencies including 'typescript' and 'nodemon'
-RUN npm install
+# Copy the source code into the container
+COPY --chown=myappuser:myappuser . .
 
-# Copy the source code (make sure .dockerignore excludes node_modules and lib)
-COPY --chown=nodeuser:nodeuser . .
-
-# Build the app
+# If you have a tsconfig.production.json, you might want to use that instead.
 RUN npm run build
 
-# Expose the port the app runs on
+# Your app binds to port 3000 so you'll use the EXPOSE instruction to have it mapped by the docker daemon
 EXPOSE 3000
 
-# Command to run the app using nodemon for development, using npx to execute the local package
-CMD ["npx", "nodemon", "lib/index.js"]
+# Define the command to run your app using the compiled JavaScript from the lib directory
+CMD [ "node", "lib/index.js" ]
