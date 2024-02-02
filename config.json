@@ -17,6 +17,20 @@
       "usdcTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
       "solDexTokenAddress": "So11111111111111111111111111111111111111112"
     },
+    "tokenIds": [
+      "solana",
+      "star-atlas",
+      "star-atlas-dao",
+      "usd-coin",
+      "wrapped-solana",
+      "helium",
+      "bonk",
+      "raydium",
+      "orca",
+      "step-finance",
+      "render-token",
+      "jupiter-exchange-solana"
+    ],
     "suppressWarnings": true
   }
   
