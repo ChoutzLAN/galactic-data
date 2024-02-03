@@ -1,16 +1,16 @@
 {
   "name": "galactic-prices",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Collects pricing data for the star atlas ecosystem.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "type": "module",
   "directories": {
-    "lib": "lib"
+    "dist": "dist"
   },
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "start": "npm run build && node --no-warnings lib/index.js"
+    "start": "npm run build && node --no-warnings dist/index.js"
   },
   "keywords": [
     "Star Atlas",

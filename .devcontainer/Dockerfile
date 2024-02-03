@@ -17,7 +17,7 @@ COPY --chown=nodeuser:nodeuser package*.json tsconfig.json ./
 # Install local dependencies including 'typescript' and 'nodemon'
 RUN npm install
 
-# Copy the source code (make sure .dockerignore excludes node_modules and lib)
+# Copy the source code (make sure .dockerignore excludes node_modules and dist)
 COPY --chown=nodeuser:nodeuser . .
 
 # Build the app
@@ -27,4 +27,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Command to run the app using nodemon for development, using npx to execute the local package
-CMD ["npx", "nodemon", "lib/index.js"]
+CMD ["npx", "nodemon", "dist/index.js"]

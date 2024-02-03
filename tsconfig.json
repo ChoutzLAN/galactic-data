@@ -13,7 +13,7 @@
 
     /* Emit */
     "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
-    "outDir": "./lib",                                   /* Specify an output folder for all emitted files. */
+    "outDir": "dist",                                   /* Specify an output folder for all emitted files. */
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -27,7 +27,7 @@
   ],
   "exclude": [
     "node_modules",
-    "lib",
+    "dist",
     "**/*.spec.ts"
   ]
 }
