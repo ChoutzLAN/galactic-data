@@ -7,7 +7,7 @@ node_modules/
 # Ignore build artifacts
 lib/
 keys/
-scripts/
+# scripts/
 
 # Logs
 logs

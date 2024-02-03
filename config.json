@@ -17,6 +17,10 @@
       "usdcTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
       "solDexTokenAddress": "So11111111111111111111111111111111111111112"
     },
+    "StarAtlastokenAddresses": {
+      "_comment": "Token addresses referencing the Star Atlas items mint addresses. These are used to look up token specific data.",
+      "SDUtokenAddress": "SDUsgfSZaDhhZ76U3ZgvtFiXsfnHbf2VrzYxjBZ5YbM"
+    },
     "tokenIds": [
       "solana",
       "star-atlas",

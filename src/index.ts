@@ -5,8 +5,8 @@ import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { getPrices, Prices } from './coingecko.js'; // Make sure to export Prices in coingecko.ts
 import * as http from 'http';
+import { fetchOrderAccounts } from './galacticMarketplace.js'; // Make sure to export fetchSDUPricingData in galactic-marketplace.ts
 dotenv.config();
-
 // Get the directory name of the current module
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 async function updateTokenPricesIfNeeded(): Promise<void> {
@@ -17,6 +17,7 @@ if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
     console.log(`Created directory: ${dataDir}`);
 }
+
 
   try {
     let pricesData: Prices | null;
@@ -48,10 +49,16 @@ if (!fs.existsSync(dataDir)) {
 }
 
 async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+  if (req.url === '/favicon.ico') {
+    res.writeHead(204); // No Content
+    res.end();
+    return;
+  }
   try {
+    // Update token prices if needed
     await updateTokenPricesIfNeeded();
     const filePath = path.join(__dirname, 'data', 'tokenPricesData.json');
-    
+
     const data = fs.readFileSync(filePath, 'utf8');
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);
@@ -62,6 +69,7 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
     res.end('Internal Server Error');
   }
 }
+
 
 const server = http.createServer((req, res) => {
   handleRequest(req, res).catch(error => {

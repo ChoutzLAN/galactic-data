@@ -17,11 +17,16 @@ export interface ApiConfig {
     solDexTokenAddress: string;
   }
   
+  export interface StarAtlastokenAddresses {
+    SDUtokenAddress: string;
+  }
+
   export interface Config {
     [x: string]: any;
     apiConfig: ApiConfig;
     caching: Omit<CachingConfig, '_comment'>;
     tokenAddresses: Omit<TokenAddresses, '_comment'>;
+    starAtlasTokenAddresses: Omit<StarAtlastokenAddresses, '_comment'>;
     suppressWarnings: boolean;
   }
   
