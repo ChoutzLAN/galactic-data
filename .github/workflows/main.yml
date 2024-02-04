@@ -39,12 +39,12 @@ jobs:
         VALUE_INPUT_OPTION: ${{ secrets.VALUE_INPUT_OPTION }}
         NODE_RPC_HOST: ${{ secrets.NODE_RPC_HOST }}
         DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
-        GCP_POOL_ID: ${{ secrets.GCP_POOL_ID }}
-        GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-        GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
-        GCP_PROVIDER_ID: ${{ secrets.GCP_PROVIDER_ID }}
         GCP_REGION: ${{ secrets.GCP_REGION }}
         GCP_REPO: ${{ secrets.GCP_REPO }}
+        GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+        GCP_POOL_ID: ${{ secrets.GCP_POOL_ID }}
+        GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
+        GCP_PROVIDER_ID: ${{ secrets.GCP_PROVIDER_ID }}
         GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
         GCP_SA_NAME: ${{ secrets.GCP_SA_NAME }}
         GCP_SA_ROLE: ${{ secrets.GCP_SA_ROLE }}
@@ -80,10 +80,14 @@ jobs:
       if: github.ref == 'refs/heads/main'
       env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        GCP_REGION: ${{ env.GCP_REGION }}
-        GCP_PROJECT: ${{ env.GCP_PROJECT }}
-        GCP_REPO: ${{ env.GCP_REPO }}
+        COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
+        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        VALUE_INPUT_OPTION: ${{ secrets.VALUE_INPUT_OPTION }}
+        NODE_RPC_HOST: ${{ secrets.NODE_RPC_HOST }}
         DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
+        GCP_REGION: ${{ secrets.GCP_REGION }}
+        GCP_REPO: ${{ secrets.GCP_REPO }}
+        GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
         GCP_POOL_ID: ${{ secrets.GCP_POOL_ID }}
         GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
         GCP_PROVIDER_ID: ${{ secrets.GCP_PROVIDER_ID }}
@@ -91,7 +95,7 @@ jobs:
         GCP_SA_NAME: ${{ secrets.GCP_SA_NAME }}
         GCP_SA_ROLE: ${{ secrets.GCP_SA_ROLE }}
         GALACTIC_MARKETPLACE_PROGRAM_ID: ${{ secrets.GALACTIC_MARKETPLACE_PROGRAM_ID }}
-        # Ensure all required env vars are listed here
+        PORT: ${{ secrets.PORT }}
       run: |
         echo "$GCP_SA_KEY" | gcloud auth activate-service-account --key-file=-
         gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
