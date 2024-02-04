@@ -2,8 +2,8 @@
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { Program, AnchorProvider } from '@project-serum/anchor';
 import * as dotenv from 'dotenv';
-import { GALACTIC_MARKETPLACE_IDL, Order as OrderType } from '@staratlas/galactic-marketplace';
 dotenv.config();
+import { GALACTIC_MARKETPLACE_IDL, Order as OrderType } from '@staratlas/galactic-marketplace';
 import { Config } from '../types/configTypes.js';
 import * as fs from 'fs/promises';
 import { fileURLToPath } from 'url';
