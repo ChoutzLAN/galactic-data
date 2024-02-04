@@ -1,4 +1,4 @@
-// configTypes.ts
+// src/types/configTypes.ts
 export interface ApiConfig {
     coingeckoApiUrl: string;
   }

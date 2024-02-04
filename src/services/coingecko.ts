@@ -1,4 +1,4 @@
-// coingecko.ts
+// src/services/coingecko.ts
 
 import fetch from 'node-fetch';
 import * as fs from 'fs';
@@ -6,7 +6,8 @@ import { fileURLToPath } from 'url';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 dotenv.config();
-
+import { CoinGeckoTokenInfo } from '../types/coingeckoTypes.js';
+import { Prices } from '../types/pricesTypes.js';
 import { Config } from '../types/configTypes.js';
 // Dynamic import of JSON file
 const configModule = await import('../../config.json', {
@@ -14,43 +15,6 @@ const configModule = await import('../../config.json', {
 });
 const configuration: Config = (configModule as unknown as { default: Config }).default;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-interface CoinGeckoTokenInfo {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: number;
-  market_cap: number;
-  market_cap_rank: number | null;
-  fully_diluted_valuation: number | null;
-  total_volume: number;
-  high_24h: number;
-  low_24h: number;
-  price_change_24h: number;
-  price_change_percentage_24h: number;
-  market_cap_change_24h: number;
-  market_cap_change_percentage_24h: number;
-  circulating_supply: number;
-  total_supply: number | null;
-  max_supply: number | null;
-  ath: number;
-  ath_change_percentage: number;
-  ath_date: string;
-  atl: number;
-  atl_change_percentage: number;
-  atl_date: string;
-  last_updated: string;
-}
-
-export interface Prices {
-  [key: string]: {
-    price: number;
-    name: string;
-    symbol: string;
-    lastUpdated: string;
-  };
-}
 
 // Type Guard function to check if the response matches the CoinGeckoTokenInfo[] structure
 function isCoinGeckoTokenInfoArray(data: any): data is CoinGeckoTokenInfo[] {
@@ -115,7 +79,7 @@ export async function getPrices(): Promise<Prices | null> {
     if (!fs.existsSync(dataDirPath)) {
       fs.mkdirSync(dataDirPath);
     }
-    fs.writeFileSync(path.join(dataDirPath, 'tokenPricesData.json'), JSON.stringify(prices, null, 2));
+    fs.writeFileSync(path.join(dataDirPath, 'coingeckoTokenData.json'), JSON.stringify(prices, null, 2));
 
     return prices;
 

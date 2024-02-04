@@ -1,4 +1,4 @@
-// galacticMarketplace.ts
+// src/services/galacticMarketplace.ts
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { Program, AnchorProvider } from '@project-serum/anchor';
 import * as dotenv from 'dotenv';
@@ -8,6 +8,9 @@ import { Config } from '../types/configTypes.js';
 import * as fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import * as path from 'path';
+import { resolve } from 'path';
+import { OrderAccount, Orders } from '../types/staratlasOrdersTypes.js'; // Import the Orders type
+import { BN } from 'bn.js'; // Ensure BN is imported from bn.js or another source
 
 // Dynamic import of JSON file
 const configModule = await import('../../config.json', { assert: { type: 'json' } });
@@ -31,30 +34,41 @@ console.log("SDU Token Address:", sduTokenAddress);
 
 const provider = new AnchorProvider(connection, {} as any, { commitment: 'confirmed' });
 
-export async function fetchOrderAccounts() {
+/**
+ * Fetches order accounts from the Galactic Marketplace Program and parses them in real-time.
+ * @returns {Promise<Orders>} A promise that resolves to an array of structured order data.
+ */
+export async function fetchParseAndWriteOrderAccounts(): Promise<void> {
     const galacticMarketplaceProgram = new Program<typeof GALACTIC_MARKETPLACE_IDL>(GALACTIC_MARKETPLACE_IDL, GALACTIC_MARKETPLACE_PROGRAM_ID, provider);
 
     try {
         const programAccounts = await galacticMarketplaceProgram.account.orderAccount.all();
-        if (programAccounts.length > 0) {
-            console.log("Sample fetched account data:", JSON.stringify(programAccounts[0], null, 2));
-        }
-
-        // Convert the fetched data to a JSON string
-        const dataString = JSON.stringify(programAccounts, null, 2); // Use programAccounts directly if it contains all necessary info
-
-        // Define the path for the output file
-        const dataDirPath = path.join(__dirname, '..','data');
-        const outputPath = path.join(dataDirPath, 'rawOrderAccountData.json');
-
-        // Ensure the 'data' directory exists
-        await fs.mkdir(dataDirPath, { recursive: true });
-
-        // Write the data to the file
-        await fs.writeFile(outputPath, dataString);
-
-        console.log('Order data has been successfully written to file.');
+        const parsedOrders: Orders = programAccounts.map(account => ({
+            publicKey: account.publicKey, // Assuming PublicKey handling is correct
+            account: {
+                orderInitializerPubkey: account.account.orderInitializerPubkey,
+                currencyMint: account.account.currencyMint,
+                assetMint: account.account.assetMint,
+                initializerCurrencyTokenAccount: account.account.initializerCurrencyTokenAccount,
+                initializerAssetTokenAccount: account.account.initializerAssetTokenAccount,
+                orderSide: account.account.orderSide, // Assuming direct use or conversion as needed
+                price: BigInt(account.account.price.toString()), // Convert BN to bigint
+                orderOriginationQty: BigInt(account.account.orderOriginationQty.toString()),
+                orderRemainingQty: BigInt(account.account.orderRemainingQty.toString()),
+                createdAtTimestamp: BigInt(account.account.createdAtTimestamp.toString()),
+            }
+        }));
+        
+        // Convert and write the parsed data to JSON, handling bigint serialization
+        const dataDirPath = path.join(__dirname, '..','..', 'data');
+        const filePath = path.join(dataDirPath, 'staratlasOrderAccountData.json');
+        await fs.mkdir(dataDirPath, { recursive: true }); // Ensure the directory exists
+        const dataString = JSON.stringify(parsedOrders, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value, 2); // Handle bigint
+        await fs.writeFile(filePath, dataString);
+        console.log('Parsed order data has been successfully written to file.');
     } catch (error) {
-        console.error("Error during fetching or writing OrderAccounts:", error);
+        console.error("Error during the process:", error);
     }
 }
+fetchParseAndWriteOrderAccounts().catch(console.error);

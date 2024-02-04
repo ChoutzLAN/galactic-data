@@ -1,53 +1,55 @@
 // src/services/tokenPricesService.ts
-import * as fs from 'fs';
+import { promises as fs } from 'fs'; // Use fs promises for asynchronous operations
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-import { getPrices, Prices } from '../services/coingecko.js'; // Adjust the import path as necessary
+import { getPrices } from '../services/coingecko.js';
+import { Prices } from '../types/pricesTypes.js';
 
-// Convert the URL to a file path for the current module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dataDirPath = path.resolve(__dirname, '../../data'); // Adjust based on your project structure
-const filePath = path.join(dataDirPath, 'tokenPricesData.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dataDirPath = path.join(__dirname, '..', '..', 'data');
+const filePath = path.join(dataDirPath, 'coingeckoTokenData.json');
 
-/**
- * Checks if the token prices data needs updating and updates if necessary.
- * If data is older than 60 seconds or doesn't exist, fetches new data.
- * Otherwise, reads the existing data from the file.
- */
 export async function updateTokenPricesIfNeeded(): Promise<Prices | null> {
     try {
+        console.log(`Starting updateTokenPricesIfNeeded...`);
         let pricesData: Prices | null = null;
-        
-        // Ensure that the 'data' directory exists
-        if (!fs.existsSync(dataDirPath)) {
-            fs.mkdirSync(dataDirPath, { recursive: true });
-            console.log(`Created directory: ${dataDirPath}`);
+
+        try {
+            await fs.access(dataDirPath);
+            console.log(`Directory exists: ${dataDirPath}`);
+        } catch {
+            console.log(`Directory does not exist, creating: ${dataDirPath}`);
+            await fs.mkdir(dataDirPath, { recursive: true });
         }
 
-        if (fs.existsSync(filePath)) {
-            const stats = fs.statSync(filePath);
+        try {
+            await fs.access(filePath);
+            const stats = await fs.stat(filePath);
             const lastModifiedTime = new Date(stats.mtime).getTime();
             const currentTime = new Date().getTime();
 
-            // Check if last modified time is greater than 60 seconds ago
             if (currentTime - lastModifiedTime > 60000) {
                 console.log('Updating token prices...');
-                pricesData = await getPrices(); // Fetch new data
-                fs.writeFileSync(filePath, JSON.stringify(pricesData)); // Save new data to file
+                pricesData = await getPrices();
+                console.log('Fetched new prices data:', pricesData);
+                await fs.writeFile(filePath, JSON.stringify(pricesData, null, 2));
+                console.log('Token prices data has been updated and written to file.');
             } else {
-                console.log('Token prices data is up to date.');
-                pricesData = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Prices; // Read existing data
+                console.log('Token prices data is up to date, reading from file...');
+                pricesData = JSON.parse(await fs.readFile(filePath, 'utf8')) as Prices;
+                console.log('Read existing token prices data from file.');
             }
-        } else {
-            console.log('Token prices file does not exist. Creating new file...');
-            pricesData = await getPrices(); // Fetch new data
-            fs.writeFileSync(filePath, JSON.stringify(pricesData)); // Save new data to file
+        } catch (err) {
+            console.log('Token prices file does not exist or another error occurred, fetching new data...');
+            pricesData = await getPrices();
+            console.log('Fetched new prices data:', pricesData);
+            await fs.writeFile(filePath, JSON.stringify(pricesData, null, 2));
+            console.log('Token prices data has been written to new file.');
         }
 
         return pricesData;
     } catch (error) {
-        console.error('An error occurred while updating token prices:', error);
+        console.error('An unexpected error occurred in updateTokenPricesIfNeeded:', error);
         return null;
     }
 }
