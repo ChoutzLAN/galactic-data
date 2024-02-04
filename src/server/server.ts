@@ -43,18 +43,20 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
   }
 }
 
-export function startServer(port: number | string): void {
-    const server = http.createServer((req, res) => {
-        handleRequest(req, res).catch(error => {
-            console.error('Unhandled error:', error);
-            if (!res.headersSent) {
-                res.writeHead(500);
-                res.end('Internal Server Error');
-            }
-        });
-    });
+export function startServer(): void {
+  const port = process.env.PORT || 8080; // Use the PORT environment variable or default to 8080
 
-    server.listen(port, () => {
-        console.log(`Server running on http://localhost:${port}`);
-    });
+  const server = http.createServer((req, res) => {
+      handleRequest(req, res).catch(error => {
+          console.error('Unhandled error:', error);
+          if (!res.headersSent) {
+              res.writeHead(500);
+              res.end('Internal Server Error');
+          }
+      });
+  });
+
+  server.listen(port, () => {
+      console.log(`Server running on http://localhost:${port}`);
+  });
 }
