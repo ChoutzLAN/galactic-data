@@ -13,7 +13,7 @@ USER myappuser
 COPY --chown=myappuser:myappuser package*.json ./
 
 # Install production dependencies
-RUN npm install --only=production
+RUN npm install
 
 # Copy the source code into the container
 COPY --chown=myappuser:myappuser . .
