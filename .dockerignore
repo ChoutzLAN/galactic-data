@@ -1,3 +1,4 @@
+# .dockerignore
 # Ignore files and directories starting with a dot
 .*
 

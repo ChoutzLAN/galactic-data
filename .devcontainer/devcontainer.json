@@ -1,3 +1,4 @@
+/* .devcontainer/devcontainer.json */
 {
     "name": "Node.js App",
     "dockerFile": "Dockerfile",
@@ -15,7 +16,7 @@
             ]
         }
     },
-    "forwardPorts": [3000],
+    "forwardPorts": [8080],
     "postCreateCommand": "npm install && npm run build",
     "remoteUser": "node",
     "mounts": [
