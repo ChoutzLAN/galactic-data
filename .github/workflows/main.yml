@@ -74,26 +74,6 @@ jobs:
             echo "Skipping $secret_name because it is empty."
           fi
         done
-
-    # Deploy the image to Google Cloud Run with Secrets
-    - name: Deploy to Cloud Run with Secrets
-      if: github.ref == 'refs/heads/main'
-      env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        GCP_REGION: ${{ env.GCP_REGION }}
-        GCP_PROJECT: ${{ env.GCP_PROJECT }}
-        GCP_REPO: ${{ env.GCP_REPO }}
-        DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
-        GCP_POOL_ID: ${{ secrets.GCP_POOL_ID }}
-        GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
-        GCP_PROVIDER_ID: ${{ secrets.GCP_PROVIDER_ID }}
-        GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-        GCP_SA_NAME: ${{ secrets.GCP_SA_NAME }}
-        GCP_SA_ROLE: ${{ secrets.GCP_SA_ROLE }}
-        GALACTIC_MARKETPLACE_PROGRAM_ID: ${{ secrets.GALACTIC_MARKETPLACE_PROGRAM_ID }}
-        # Ensure all required env vars are listed here
-      run: |
-        echo "$GCP_SA_KEY" | gcloud auth activate-service-account --key-file=-
-        gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
-
-        gcloud run deploy galactic-prices-gcloud-service --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.GCP_REPO }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }} --add-cloudsql-instances ${{ env.GCP_PROJECT }}:${{ env.GCP_REGION }}:instance --update-env-vars NODE_ENV=production --update-secrets COINGECKO_API_KEY=COINGECKO_API_KEY:latest,SPREADSHEET_ID=SPREADSHEET_ID:latest,VALUE_INPUT_OPTION=VALUE_INPUT_OPTION:latest,NODE_RPC_HOST=NODE_RPC_HOST:latest,DOCKER_IMAGE=DOCKER_IMAGE:latest,GCP_POOL_ID=GCP_POOL_ID:latest,GCP_PROJECT=GCP_PROJECT:latest,GCP_PROJECT_NUMBER=GCP_PROJECT_NUMBER:latest,GCP_PROVIDER_ID=GCP_PROVIDER_ID:latest,GCP_REGION=GCP_REGION:latest,GCP_REPO=GCP_REPO:latest,GCP_SA_EMAIL=GCP_SA_EMAIL:latest,GCP_SA_NAME=GCP_SA_NAME:latest,GCP_SA_ROLE=GCP_SA_ROLE:latest,GALACTIC_MARKETPLACE_PROGRAM_ID=GALACTIC_MARKETPLACE_PROGRAM_ID:latest --platform managed --region ${{ env.GCP_REGION }} --project ${{ env.GCP_PROJECT }}
+        
+        # Deploy the service to Google Cloud Run with Secrets and Cloud SQL
+        gcloud run deploy galactic-prices-gcloud-service --image $GCP_REGION-docker.pkg.dev/$GCP_PROJECT/$GCP_REPO/$DOCKER_IMAGE:${{ github.sha }} --add-cloudsql-instances $GCP_PROJECT:$GCP_REGION:instance --update-env-vars NODE_ENV=production --update-secrets [your-secrets-here] --platform managed --region $GCP_REGION --project $GCP_PROJECT
