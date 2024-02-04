@@ -29,8 +29,8 @@ jobs:
     - name: Build
       run: npm run build
 
-    # Build and push the Docker image to Google Cloud Artifact Registry 
-    - name: Authenticate, Build, and Push Docker Image
+    # Authenticate and push the Docker image to Google Cloud Artifact Registry 
+    - name: Authenticate and Push Docker Image
       if: github.ref == 'refs/heads/main'
       env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
