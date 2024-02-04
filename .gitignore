@@ -13,6 +13,14 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# Development tools
+#compose-dev.yaml
+#Dockerfile
+#.dockerfile
+#.devcontainer
+#.github
+
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
