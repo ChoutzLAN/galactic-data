@@ -1,3 +1,4 @@
+# Dockerfile
 # Use the official Node.js 21 image as a parent image
 FROM node:21
 
@@ -21,8 +22,8 @@ COPY --chown=myappuser:myappuser . .
 # Build the app (if necessary)
 RUN npm run build
 
-# Your app binds to port 3000 so you'll use the EXPOSE instruction to have it mapped by the docker daemon
-EXPOSE 3000
+# Your app binds to port 8080 so you'll use the EXPOSE instruction to have it mapped by the docker daemon
+EXPOSE 8080
 
 # Define the command to run your app using the compiled JavaScript from the dist directory
 CMD ["node", "dist/index.js"]

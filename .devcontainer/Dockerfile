@@ -1,3 +1,4 @@
+# .devcontainer/Dockerfile
 # Start from the official Node.js image
 FROM node:21
 
@@ -24,7 +25,7 @@ COPY --chown=nodeuser:nodeuser . .
 RUN npm run build
 
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 8080
 
 # Command to run the app using nodemon for development, using npx to execute the local package
 CMD ["npx", "nodemon", "dist/index.js"]
