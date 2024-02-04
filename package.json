@@ -43,7 +43,7 @@
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/web3.js": "^1.88.0",
     "@staratlas/galactic-marketplace": "^0.9.7",
-    "@types/node-fetch": "^2.6.10",
+    "bn.js": "^5.2.1",
     "dotenv": "^16.3.2",
     "node-fetch": "^3.3.2",
     "ts-node": "^10.9.2",
@@ -54,6 +54,7 @@
     "@types/node": "^20.11.5",
     "jest": "^29.7.0",
     "nodemon": "^3.0.3",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@types/node-fetch": "^2.6.10"
   }
 }
