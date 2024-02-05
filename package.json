@@ -1,5 +1,5 @@
 {
-  "name": "galactic-prices",
+  "name": "galactic-data",
   "version": "0.1.1",
   "description": "Collects pricing data for the star atlas ecosystem.",
   "main": "dist/index.js",
