@@ -1,3 +1,4 @@
+// src/types/coingeckoTypes.ts
 export interface CoinGeckoTokenInfo {
   id: string;
   symbol: string;
