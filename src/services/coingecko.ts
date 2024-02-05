@@ -56,7 +56,7 @@ export async function getPrices(): Promise<Prices | null> {
   try {
     const response = await fetch(apiUrl);
     const data = await response.json();
-    console.log(`Fetched data from CoinGecko:`, data);
+    //console.log(`Fetched data from CoinGecko:`, data);
 
     if (!isCoinGeckoTokenInfoArray(data)) {
       console.error('Fetched data does not match the CoinGeckoTokenInfo structure');
@@ -72,7 +72,7 @@ export async function getPrices(): Promise<Prices | null> {
       };
       return acc;
     }, {} as Prices);
-    console.log(`Processed prices data:`, prices);
+    //console.log(`Processed prices data:`, prices);
 
     const dataDirPath = path.join(__dirname, '..', '..', 'data');
     if (!fs.existsSync(dataDirPath)) {
