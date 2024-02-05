@@ -3,16 +3,16 @@ import { promises as fs } from 'fs'; // Use fs promises for asynchronous operati
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { getPrices } from '../services/coingecko.js';
-import { Prices } from '../types/coingeckoTypes.js';
+import { coingeckoTokenType } from '../types/coingeckoTypes';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDirPath = path.join(__dirname, '..', '..', 'data');
 const filePath = path.join(dataDirPath, 'coingeckoTokenData.json');
 
-export async function updateTokenPricesIfNeeded(): Promise<Prices | null> {
+export async function updateTokenPricesIfNeeded(): Promise<coingeckoTokenType | null> {
     try {
         console.log(`Starting updateTokenPricesIfNeeded...`);
-        let pricesData: Prices | null = null;
+        let pricesData: coingeckoTokenType | null = null;
 
         try {
             await fs.access(dataDirPath);
@@ -36,7 +36,7 @@ export async function updateTokenPricesIfNeeded(): Promise<Prices | null> {
                 console.log('Token prices data has been updated and written to file.');
             } else {
                 console.log('Token prices data is up to date, reading from file...');
-                pricesData = JSON.parse(await fs.readFile(filePath, 'utf8')) as Prices;
+                pricesData = JSON.parse(await fs.readFile(filePath, 'utf8')) as coingeckoTokenType;
                 console.log('Read existing token prices data from file.');
             }
         } catch (err) {

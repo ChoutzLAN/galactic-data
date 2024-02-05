@@ -1,2 +1,2 @@
-# galactic-prices
-Collects prices for the Star Atlas ecosystem
+# Galactic Data
+Collects data for the Star Atlas ecosystem.

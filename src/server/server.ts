@@ -8,7 +8,8 @@ import { needsUpdate } from '../utils/update.js';
 import { fetchParseAndWriteOrderAccounts } from '../services/galacticMarketplace.js';
 import { updateTokenPricesIfNeeded } from '../services/tokenPricesService.js';
 import NodeCache from 'node-cache';
-import { OrderData, PriceData } from '../types/configTypes'; // Adjust the import path as necessary
+import { staratlasOrderAccountType } from '../types/staratlasOrdersTypes';
+import { coingeckoTokenType } from '../types/coingeckoTypes';
 
 dotenv.config();
 
@@ -28,32 +29,35 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
   }
   
   try {
-    const orderDataPath = path.join(__dirname, 'data', 'staratlasOrderAccountData.json');
-    const priceDataPath = path.join(__dirname, 'data', 'coingeckoTokenData.json');
+    const staratlasOrderPath = path.join(__dirname, 'data', 'staratlasOrderAccountData.json');
+    const coinceckoDataPath = path.join(__dirname, 'data', 'coingeckoTokenData.json');
 
-    // Check if order data needs updating
-    if (await needsUpdate(orderDataPath, 60000)) { // 60 seconds
+    // Check if Star Atlas order data needs updating
+    if (await needsUpdate(staratlasOrderPath, 60000)) { // 60 seconds
       await fetchParseAndWriteOrderAccounts();
+    }
+    if (await needsUpdate(coinceckoDataPath, 60000)) { // 60 seconds
+      //await fetchParseAndWriteOrderAccounts();
     }
 
     // Ensure the token prices data is up-to-date
     await updateTokenPricesIfNeeded(); // Update token prices if needed
 
-    let orderData: OrderData = cache.get('staratlasOrderAccountData') as OrderData;
-    let priceData: PriceData = cache.get('coingeckoTokenData') as PriceData;
+    let staratlasOrders: staratlasOrderAccountType = cache.get('staratlasOrderAccountData') as staratlasOrderAccountType;
+    let coingeckoData: coingeckoTokenType = cache.get('coingeckoTokenData') as coingeckoTokenType;
 
-    if (!orderData) {
-      orderData = await readJsonData(orderDataPath) as OrderData;
-      cache.set('staratlasOrderAccountData', orderData);
+    if (!staratlasOrders) {
+      staratlasOrders = await readJsonData(staratlasOrderPath) as staratlasOrderAccountType;
+      cache.set('staratlasOrderAccountData', staratlasOrders);
     }
 
-    if (!priceData) {
-      priceData = await readJsonData(priceDataPath) as PriceData;
-      cache.set('coingeckoTokenData', priceData);
+    if (!coingeckoData) {
+      coingeckoData = await readJsonData(coinceckoDataPath) as coingeckoTokenType;
+      cache.set('coingeckoTokenData', coingeckoData);
     }
 
     // Combine JSON data
-    const combinedData = await combineJsonData(orderData, priceData); // Corrected to use the proper types
+    const combinedData = await combineJsonData(staratlasOrders, coingeckoData); // Corrected to use the proper types
 
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);

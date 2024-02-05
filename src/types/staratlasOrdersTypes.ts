@@ -22,4 +22,4 @@ export interface OrderAccount {
   };
 }
 
-export type Orders = OrderAccount[];
+export type staratlasOrderAccountType = OrderAccount[];

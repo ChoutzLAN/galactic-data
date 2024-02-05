@@ -8,8 +8,7 @@ import { Config } from '../types/configTypes.js';
 import * as fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import * as path from 'path';
-import { resolve } from 'path';
-import { OrderAccount, Orders } from '../types/staratlasOrdersTypes.js'; // Import the Orders type
+import { staratlasOrderAccountType } from '../types/staratlasOrdersTypes.js'; // Import the Orders type
 import { BN } from 'bn.js'; // Ensure BN is imported from bn.js or another source
 
 // Dynamic import of JSON file
@@ -43,7 +42,7 @@ export async function fetchParseAndWriteOrderAccounts(): Promise<void> {
 
     try {
         const programAccounts = await galacticMarketplaceProgram.account.orderAccount.all();
-        const parsedOrders: Orders = programAccounts.map(account => ({
+        const parsedOrders: staratlasOrderAccountType = programAccounts.map(account => ({
             publicKey: account.publicKey, // Assuming PublicKey handling is correct
             account: {
                 orderInitializerPubkey: account.account.orderInitializerPubkey,
@@ -58,19 +57,13 @@ export async function fetchParseAndWriteOrderAccounts(): Promise<void> {
                 createdAtTimestamp: BigInt(account.account.createdAtTimestamp.toString()),
             }
         }));
-        
-        // Include a lastUpdated timestamp
-        const ordersWithTimestamp = {
-            data: parsedOrders,
-            fileLastUpdated: new Date().toISOString()
-        };
-        
+
         const dataDirPath = path.join(__dirname, '..', '..', 'data');
         const filePath = path.join(dataDirPath, 'staratlasOrderAccountData.json');
         await fs.mkdir(dataDirPath, { recursive: true }); // Ensure the directory exists
-        await fs.writeFile(filePath, JSON.stringify(ordersWithTimestamp, (key, value) =>
-            typeof value === 'bigint' ? value.toString() : value, 2)); // Handle bigint and include timestamp
-        console.log('Parsed order data with timestamp has been successfully written to file.');
+        await fs.writeFile(filePath, JSON.stringify(parsedOrders, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value, 2)); // Handle bigint
+        console.log('Parsed order data has been successfully written to file.');
     } catch (error) {
         console.error("Error during the process:", error);
     }

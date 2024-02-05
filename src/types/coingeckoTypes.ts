@@ -1,5 +1,5 @@
 // src/types/coingeckoTypes.ts
-export interface CoinGeckoTokenInfo {
+export interface CoingeckoFullTokenInfoType {
   id: string;
   symbol: string;
   name: string;
@@ -27,7 +27,7 @@ export interface CoinGeckoTokenInfo {
   last_updated: string;
 }
 
-export interface Prices { 
+export interface coingeckoTokenType { 
   [key: string]: { 
     price: number; 
     name: string; 

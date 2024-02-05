@@ -29,13 +29,3 @@ export interface Config {
   starAtlasTokenAddresses: Omit<StarAtlastokenAddresses, '_comment'>;
   suppressWarnings: boolean;
 }
-  
-export interface OrderData {
-  data: any[]; // Replace 'any' with a more specific type based on your data structure
-  fileLastUpdated: string;
-}
-
-export interface PriceData {
-  data: { [key: string]: any }; // Replace 'any' with a more specific type based on your data structure
-  fileLastUpdated: string;
-}
