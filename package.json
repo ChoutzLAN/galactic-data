@@ -10,7 +10,8 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "start": "npm run build && node --no-warnings dist/index.js"
+    "start": "npm run build && node --no-warnings dist/index.js",
+    "rebuild": "npm rebuild"
   },
   "keywords": [
     "Star Atlas",
