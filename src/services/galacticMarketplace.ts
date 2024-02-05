@@ -59,14 +59,18 @@ export async function fetchParseAndWriteOrderAccounts(): Promise<void> {
             }
         }));
         
-        // Convert and write the parsed data to JSON, handling bigint serialization
-        const dataDirPath = path.join(__dirname, '..','..', 'data');
+        // Include a lastUpdated timestamp
+        const ordersWithTimestamp = {
+            data: parsedOrders,
+            fileLastUpdated: new Date().toISOString()
+        };
+        
+        const dataDirPath = path.join(__dirname, '..', '..', 'data');
         const filePath = path.join(dataDirPath, 'staratlasOrderAccountData.json');
         await fs.mkdir(dataDirPath, { recursive: true }); // Ensure the directory exists
-        const dataString = JSON.stringify(parsedOrders, (key, value) =>
-            typeof value === 'bigint' ? value.toString() : value, 2); // Handle bigint
-        await fs.writeFile(filePath, dataString);
-        console.log('Parsed order data has been successfully written to file.');
+        await fs.writeFile(filePath, JSON.stringify(ordersWithTimestamp, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value, 2)); // Handle bigint and include timestamp
+        console.log('Parsed order data with timestamp has been successfully written to file.');
     } catch (error) {
         console.error("Error during the process:", error);
     }

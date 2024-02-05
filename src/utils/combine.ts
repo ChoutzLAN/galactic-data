@@ -1,32 +1,21 @@
-// src/utils/comnbine.ts
-// Utility function to combine JSON data from two files
-import { promises as fs } from 'fs';
-import * as path from 'path';
+// src/utils/combine.ts
+import NodeCache from 'node-cache';
+import { OrderData, PriceData } from '../types/configTypes'; // Adjust the import path as necessary
 
-async function fileExists(filePath: string): Promise<boolean> {
-  return fs.access(filePath, fs.constants.F_OK)
-    .then(() => true)
-    .catch(() => false);
-}
+const cache = new NodeCache();
 
-export async function combineJsonData(orderDataPath: string, priceDataPath: string): Promise<string> {
-  try {
-    const [orderDataExists, priceDataExists] = await Promise.all([
-      fileExists(orderDataPath),
-      fileExists(priceDataPath),
-    ]);
+// Adjust the function to accept data objects directly
+export function combineJsonData(orderData: OrderData, priceData: PriceData): string {
+  // Cache the data for future use
+  cache.set("staratlasOrderAccountData", orderData);
+  cache.set("coingeckoTokenData", priceData);
 
-    let orderData = orderDataExists ? await fs.readFile(orderDataPath, 'utf8').then(JSON.parse) : [];
-    let priceData = priceDataExists ? await fs.readFile(priceDataPath, 'utf8').then(JSON.parse) : {};
+  const combinedData = {
+    staratlasOrderAccountData: orderData.data || [],
+    staratlasOrderAccountDataFileLastUpdated: orderData.fileLastUpdated,
+    coingeckoTokenData: priceData.data || {},
+    coingeckoTokenDataFileLastUpdated: priceData.fileLastUpdated,
+  };
 
-    const combinedData = {
-      orders: orderData,
-      prices: priceData,
-    };
-
-    return JSON.stringify(combinedData, null, 2);
-  } catch (error) {
-    console.error('Error combining JSON data:', error);
-    throw new Error('Failed to combine JSON data');
-  }
+  return JSON.stringify(combinedData, null, 2);
 }

@@ -6,9 +6,9 @@ import { fileURLToPath } from 'url';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { CoinGeckoTokenInfo } from '../types/coingeckoTypes.js';
-import { Prices } from '../types/pricesTypes.js';
+import { CoinGeckoTokenInfo, Prices } from '../types/coingeckoTypes.js';
 import { Config } from '../types/configTypes.js';
+
 // Dynamic import of JSON file
 const configModule = await import('../../config.json', {
   assert: { type: 'json' }
@@ -45,46 +45,51 @@ function isCoinGeckoTokenInfoArray(data: any): data is CoinGeckoTokenInfo[] {
     'atl_change_percentage' in item && typeof item.atl_change_percentage === 'number' &&
     'atl_date' in item && typeof item.atl_date === 'string' &&
     'last_updated' in item && typeof item.last_updated === 'string'
-    // Note: Add any other fields here if needed.
   );
 }
-
-
 
 export async function getPrices(): Promise<Prices | null> {
   const tokenIds = configuration.tokenIds.join(',');
   const apiUrl = `${configuration.apiConfig.coingeckoApiUrl.replace('/simple/price', '/coins/markets')}&vs_currency=usd&ids=${tokenIds}`;
+  console.log('Fetching prices from CoinGecko API...', apiUrl);
 
   try {
     const response = await fetch(apiUrl);
     const data = await response.json();
+    console.log(`Fetched data from CoinGecko:`, data);
 
     if (!isCoinGeckoTokenInfoArray(data)) {
       console.error('Fetched data does not match the CoinGeckoTokenInfo structure');
       return null;
     }
 
-    // Process and map the API response to the Prices structure
     const prices: Prices = data.reduce((acc, tokenInfo) => {
       acc[tokenInfo.id] = {
         price: tokenInfo.current_price,
         name: tokenInfo.name,
-        symbol: tokenInfo.symbol, // Directly mapping the 'symbol' field
-        lastUpdated: tokenInfo.last_updated, // Mapping the 'last_updated' field
+        symbol: tokenInfo.symbol,
+        lastUpdated: tokenInfo.last_updated,
       };
       return acc;
     }, {} as Prices);
+    console.log(`Processed prices data:`, prices);
 
-    const dataDirPath = path.join(__dirname, 'data');
+    const dataDirPath = path.join(__dirname, '..', '..', 'data');
     if (!fs.existsSync(dataDirPath)) {
+      console.log(`Data directory does not exist, creating: ${dataDirPath}`);
       fs.mkdirSync(dataDirPath);
     }
-    fs.writeFileSync(path.join(dataDirPath, 'coingeckoTokenData.json'), JSON.stringify(prices, null, 2));
+    const pricesWithTimestamp = {
+      data: prices,
+      fileLastUpdated: new Date().toISOString()
+    };
+    fs.writeFileSync(path.join(dataDirPath, 'coingeckoTokenData.json'), JSON.stringify(pricesWithTimestamp, null, 2));
+    console.log('coingeckoTokenData.json has been updated with the latest prices.');
 
     return prices;
 
   } catch (error) {
-    console.error('Error fetching token prices:', error);
+    console.error('Error fetching Coingecko Data:', error);
     return null;
   }
 }

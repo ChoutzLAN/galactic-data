@@ -2,14 +2,23 @@
 import * as http from 'http';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
-import { fetchParseAndWriteOrderAccounts } from '../services/galacticMarketplace.js';
+import { promises as fs } from 'fs';
 import { combineJsonData } from '../utils/combine.js';
 import { needsUpdate } from '../utils/update.js';
-import { updateTokenPricesIfNeeded } from '../services/tokenPricesService.js'; // Import the function
+import { fetchParseAndWriteOrderAccounts } from '../services/galacticMarketplace.js';
+import { updateTokenPricesIfNeeded } from '../services/tokenPricesService.js';
+import NodeCache from 'node-cache';
+import { OrderData, PriceData } from '../types/configTypes'; // Adjust the import path as necessary
 
 dotenv.config();
 
+const cache = new NodeCache(); // Initialize cache
 const __dirname = path.resolve(path.dirname(''));
+
+async function readJsonData(filePath: string) {
+  const data = await fs.readFile(filePath, 'utf8');
+  return JSON.parse(data);
+}
 
 async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
   if (req.url === '/favicon.ico') {
@@ -30,12 +39,25 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
     // Ensure the token prices data is up-to-date
     await updateTokenPricesIfNeeded(); // Update token prices if needed
 
+    let orderData: OrderData = cache.get('staratlasOrderAccountData') as OrderData;
+    let priceData: PriceData = cache.get('coingeckoTokenData') as PriceData;
+
+    if (!orderData) {
+      orderData = await readJsonData(orderDataPath) as OrderData;
+      cache.set('staratlasOrderAccountData', orderData);
+    }
+
+    if (!priceData) {
+      priceData = await readJsonData(priceDataPath) as PriceData;
+      cache.set('coingeckoTokenData', priceData);
+    }
+
     // Combine JSON data
-    const combinedData = await combineJsonData(orderDataPath, priceDataPath);
+    const combinedData = await combineJsonData(orderData, priceData); // Corrected to use the proper types
 
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);
-    res.end(combinedData);
+    res.end(JSON.stringify(combinedData)); // Ensure you're sending a string
   } catch (error) {
     console.error('Error handling request:', error);
     res.writeHead(500);

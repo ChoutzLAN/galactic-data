@@ -3,7 +3,7 @@ import { promises as fs } from 'fs'; // Use fs promises for asynchronous operati
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { getPrices } from '../services/coingecko.js';
-import { Prices } from '../types/pricesTypes.js';
+import { Prices } from '../types/coingeckoTypes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDirPath = path.join(__dirname, '..', '..', 'data');
@@ -31,7 +31,7 @@ export async function updateTokenPricesIfNeeded(): Promise<Prices | null> {
             if (currentTime - lastModifiedTime > 60000) {
                 console.log('Updating token prices...');
                 pricesData = await getPrices();
-                console.log('Fetched new prices data:', pricesData);
+                console.log('Successfully fetched new prices data:');
                 await fs.writeFile(filePath, JSON.stringify(pricesData, null, 2));
                 console.log('Token prices data has been updated and written to file.');
             } else {
@@ -42,7 +42,7 @@ export async function updateTokenPricesIfNeeded(): Promise<Prices | null> {
         } catch (err) {
             console.log('Token prices file does not exist or another error occurred, fetching new data...');
             pricesData = await getPrices();
-            console.log('Fetched new prices data:', pricesData);
+            console.log('Successfully fetched new prices data');
             await fs.writeFile(filePath, JSON.stringify(pricesData, null, 2));
             console.log('Token prices data has been written to new file.');
         }
