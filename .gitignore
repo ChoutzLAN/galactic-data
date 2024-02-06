@@ -19,7 +19,7 @@ lerna-debug.log*
 #.dockerfile
 #.devcontainer
 #.github
-scripts/
+#scripts/
 
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
