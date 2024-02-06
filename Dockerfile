@@ -1,16 +1,19 @@
 # Dockerfile
-# Use the official Node.js image as a parent image
+# Use the official Node.js 21 image as a parent image
 FROM node:21
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Create a non-root user and switch to it
+# Create a non-root user for running the application
 RUN useradd --create-home myappuser
 
-# Temporarily switch to root to install the latest version of npm
+# Temporarily switch to root to update npm to the latest version
 USER root
 RUN npm install -g npm@latest
+
+# Change the ownership of the working directory to the non-root user
+RUN chown -R myappuser:myappuser /usr/src/app
 
 # Switch back to the non-root user
 USER myappuser
@@ -30,5 +33,5 @@ RUN npm run build
 # Your app binds to port 8080 so you'll use the EXPOSE instruction to have it mapped by the docker daemon
 EXPOSE 8080
 
-# Define the command to run your app using CMD
+# Define the command to run your app using the compiled JavaScript from the dist directory
 CMD ["node", "dist/index.js"]
