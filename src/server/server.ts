@@ -1,24 +1,17 @@
 // src/server/server.ts
 import * as http from 'http';
-import * as path from 'path';
 import * as dotenv from 'dotenv';
-import { promises as fs } from 'fs';
-import { combineJsonData } from '../utils/combine.js';
-import { needsUpdate } from '../utils/update.js';
-import { fetchParseAndWriteOrderAccounts } from '../services/galacticMarketplace.js';
-import { updateTokenPricesIfNeeded } from '../services/tokenPricesService.js';
-import NodeCache from 'node-cache';
-import { staratlasOrderAccountType } from '../types/staratlasOrdersTypes';
-import { coingeckoTokenType } from '../types/coingeckoTypes';
+import { getPrices } from '../services/coingecko.js'; // Assuming getPrices now updates the DB
+import { CoingeckoTokenModel, CoingeckoToken } from '../models/coingeckoTokenModel.js';
+import { StarAtlasOrderModel, StarAtlasOrder } from '../models/staratlasOrderModel.js';
 
 dotenv.config();
 
-const cache = new NodeCache(); // Initialize cache
-const __dirname = path.resolve(path.dirname(''));
+export async function fetchDataFromDB(): Promise<{ staratlasOrders: StarAtlasOrder[], coingeckoData: CoingeckoToken[] }> {
+  const staratlasOrders = await StarAtlasOrderModel.find();
+  const coingeckoData = await CoingeckoTokenModel.find();
 
-async function readJsonData(filePath: string) {
-  const data = await fs.readFile(filePath, 'utf8');
-  return JSON.parse(data);
+  return { staratlasOrders, coingeckoData };
 }
 
 async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -27,41 +20,20 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
     res.end();
     return;
   }
-  
+
   try {
-    const staratlasOrderPath = path.join(__dirname, 'data', 'staratlasOrderAccountData.json');
-    const coinceckoDataPath = path.join(__dirname, 'data', 'coingeckoTokenData.json');
+    // Ensure the data is up-to-date, this might involve calling getPrices directly or via scheduled tasks
+    // Consider removing direct calls to update data in the request handler for better performance
+    await getPrices(); // Uncomment if updates should be triggered per request (not recommended for high traffic)
 
-    // Check if Star Atlas order data needs updating
-    if (await needsUpdate(staratlasOrderPath, 60000)) { // 60 seconds
-      await fetchParseAndWriteOrderAccounts();
-    }
-    if (await needsUpdate(coinceckoDataPath, 60000)) { // 60 seconds
-      //await fetchParseAndWriteOrderAccounts();
-    }
+    const { staratlasOrders, coingeckoData } = await fetchDataFromDB();
 
-    // Ensure the token prices data is up-to-date
-    await updateTokenPricesIfNeeded(); // Update token prices if needed
-
-    let staratlasOrders: staratlasOrderAccountType = cache.get('staratlasOrderAccountData') as staratlasOrderAccountType;
-    let coingeckoData: coingeckoTokenType = cache.get('coingeckoTokenData') as coingeckoTokenType;
-
-    if (!staratlasOrders) {
-      staratlasOrders = await readJsonData(staratlasOrderPath) as staratlasOrderAccountType;
-      cache.set('staratlasOrderAccountData', staratlasOrders);
-    }
-
-    if (!coingeckoData) {
-      coingeckoData = await readJsonData(coinceckoDataPath) as coingeckoTokenType;
-      cache.set('coingeckoTokenData', coingeckoData);
-    }
-
-    // Combine JSON data
-    const combinedData = await combineJsonData(staratlasOrders, coingeckoData); // Corrected to use the proper types
+    // Process or combine your data as needed
+    // Since you're now working directly with MongoDB documents, ensure your response structure aligns with your frontend expectations
 
     res.setHeader('Content-Type', 'application/json');
     res.writeHead(200);
-    res.end(JSON.stringify(combinedData)); // Ensure you're sending a string
+    res.end(JSON.stringify({ staratlasOrders, coingeckoData })); // Adjust according to your actual combined data structure
   } catch (error) {
     console.error('Error handling request:', error);
     res.writeHead(500);

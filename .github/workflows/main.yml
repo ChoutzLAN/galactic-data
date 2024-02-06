@@ -29,75 +29,28 @@ jobs:
     - name: Build
       run: npm run build
 
-    # Authenticate and push the Docker image to Google Cloud Artifact Registry 
-    - name: Authenticate and Push Docker Image
-      if: github.ref == 'refs/heads/main'
-      env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
-        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-        VALUE_INPUT_OPTION: ${{ secrets.VALUE_INPUT_OPTION }}
-        NODE_RPC_HOST: ${{ secrets.NODE_RPC_HOST }}
-        DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
-        GCP_REGION: ${{ secrets.GCP_REGION }}
-        GCP_ARTIFACT_REGISTRY_NAME: ${{ secrets.GCP_ARTIFACT_REGISTRY_NAME }}
-        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        GCP_POOL_ID: ${{ secrets.GCP_POOL_ID }}
-        GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
-        GCP_PROVIDER_ID: ${{ secrets.GCP_PROVIDER_ID }}
-        GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-        GCP_SA_NAME: ${{ secrets.GCP_SA_NAME }}
-        GALACTIC_MARKETPLACE_PROGRAM_ID: ${{ secrets.GALACTIC_MARKETPLACE_PROGRAM_ID }}
-        PORT: ${{ secrets.PORT }}
-        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+    # Load .env file and set as GitHub Actions environment variables
+    - name: Load .env file
       run: |
-        echo "$GCP_SA_KEY" | gcloud auth activate-service-account --key-file=-
-        gcloud auth configure-docker $GCP_REGION-docker.pkg.dev
-
-        docker build -t $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_NAME/$DOCKER_IMAGE:${{ github.sha }} .
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_NAME/$DOCKER_IMAGE:${{ github.sha }}
-
-        # Update secrets in Google Cloud Secret Manager, skipping empty values
-        for secret_name in COINGECKO_API_KEY SPREADSHEET_ID VALUE_INPUT_OPTION NODE_RPC_HOST DOCKER_IMAGE GCP_POOL_ID GCP_PROJECT_ID GCP_PROJECT_NUMBER GCP_PROVIDER_ID GCP_REGION GCP_ARTIFACT_REGISTRY_NAME GCP_SA_EMAIL GCP_SA_NAME GALACTIC_MARKETPLACE_PROGRAM_ID PORT MONGODB_URI; do
-          secret_value=$(eval echo "\$$secret_name")
-          # Proceed only if secret_value is not empty
-          if [[ ! -z "$secret_value" ]]; then
-            # Check if the secret exists
-            if gcloud secrets describe $secret_name --project=$GCP_PROJECT_ID &>/dev/null; then
-              # Add new version if the secret exists
-              echo -n "$secret_value" | gcloud secrets versions add $secret_name --data-file=- --project=$GCP_PROJECT_ID
-            else
-              # Create the secret if it does not exist
-              echo -n "$secret_value" | gcloud secrets create $secret_name --data-file=- --replication-policy="automatic" --project=$GCP_PROJECT_ID
-            fi
-          else
-            echo "Skipping $secret_name because it is empty."
+        while IFS='=' read -r key value; do
+          if [[ ! $key == \#* ]]; then
+            echo "$key=$value" >> $GITHUB_ENV
           fi
-        done
+        done < .env
 
-    # Deploy the image to Google Cloud Run with Secrets
-    - name: Deploy to Cloud Run with Secrets
-      if: github.ref == 'refs/heads/main'
-      env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
-        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-        VALUE_INPUT_OPTION: ${{ secrets.VALUE_INPUT_OPTION }}
-        NODE_RPC_HOST: ${{ secrets.NODE_RPC_HOST }}
-        DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
-        GCP_REGION: ${{ secrets.GCP_REGION }}
-        GCP_ARTIFACT_REGISTRY_NAME: ${{ secrets.GCP_ARTIFACT_REGISTRY_NAME }}
-        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        GCP_POOL_ID: ${{ secrets.GCP_POOL_ID }}
-        GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
-        GCP_PROVIDER_ID: ${{ secrets.GCP_PROVIDER_ID }}
-        GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-        GCP_SA_NAME: ${{ secrets.GCP_SA_NAME }}
-        GALACTIC_MARKETPLACE_PROGRAM_ID: ${{ secrets.GALACTIC_MARKETPLACE_PROGRAM_ID }}
-        PORT: ${{ secrets.PORT }}
-        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+    # Authenticate with GCP and configure Docker
+    - name: Setup GCP and Docker
       run: |
-        echo "$GCP_SA_KEY" | gcloud auth activate-service-account --key-file=-
+        echo "${{ secrets.GCP_SA_KEY }}" | gcloud auth activate-service-account --key-file=-
         gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
 
-        gcloud run deploy galactic-prices-gcloud-service --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }} --add-cloudsql-instances ${{ env.GCP_PROJECT_ID }}:${{ env.GCP_REGION }}:instance --update-env-vars NODE_ENV=production --update-secrets COINGECKO_API_KEY=COINGECKO_API_KEY:latest,SPREADSHEET_ID=SPREADSHEET_ID:latest,VALUE_INPUT_OPTION=VALUE_INPUT_OPTION:latest,NODE_RPC_HOST=NODE_RPC_HOST:latest,DOCKER_IMAGE=DOCKER_IMAGE:latest,GCP_POOL_ID=GCP_POOL_ID:latest,GCP_PROJECT_ID=GCP_PROJECT_ID:latest,GCP_PROJECT_NUMBER=GCP_PROJECT_NUMBER:latest,GCP_PROVIDER_ID=GCP_PROVIDER_ID:latest,GCP_REGION=GCP_REGION:latest,GCP_ARTIFACT_REGISTRY_NAME=GCP_ARTIFACT_REGISTRY_NAME:latest,GCP_SA_EMAIL=GCP_SA_EMAIL:latest,GCP_SA_NAME=GCP_SA_NAME:latest,GALACTIC_MARKETPLACE_PROGRAM_ID=GALACTIC_MARKETPLACE_PROGRAM_ID:latest,MONGODB_URI=MONGODB_URI:latest --platform managed --region ${{ env.GCP_REGION }} --project ${{ env.GCP_PROJECT_ID }}
+    # Build and Push Docker Image to Google Cloud Artifact Registry
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }} .
+        docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+
+    # Deploy the image to Google Cloud Run
+    - name: Deploy to Google Cloud Run
+      run: |
+        gcloud run deploy galactic-prices-gcloud-service --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_ARTIFACT_REGISTRY_NAME }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }} --add-cloudsql-instances ${{ env.GCP_PROJECT_ID }}:${{ env.GCP_REGION }}:instance --update-env-vars NODE_ENV=production --platform managed --region ${{ env.GCP_REGION }} --project ${{ env.GCP_PROJECT_ID }}

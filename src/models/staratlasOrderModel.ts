@@ -1,7 +1,7 @@
 // src/models/staratlasOrderModel.ts
 import { Schema, model } from 'mongoose';
 
-interface StarAtlasOrder {
+export interface StarAtlasOrder {
   publicKey: string;
   account: {
     orderInitializerPubkey: string;
@@ -18,6 +18,7 @@ interface StarAtlasOrder {
     orderRemainingQty: string;
     createdAtTimestamp: string;
   };
+  dbLastUpdated?: Date; // Add this line for the dbLastUpdated field
 }
 
 const starAtlasOrderSchema = new Schema<StarAtlasOrder>({
@@ -33,8 +34,10 @@ const starAtlasOrderSchema = new Schema<StarAtlasOrder>({
     orderOriginationQty: { type: String, required: true },
     orderRemainingQty: { type: String, required: true },
     createdAtTimestamp: { type: String, required: true },
-  }
-});
+  },
+  dbLastUpdated: { type: Date } // Automatically managed by Mongoose
+}, { timestamps: { createdAt: 'createdAt', updatedAt: 'dbLastUpdated' } }); // Enable automatic timestamp management
 
-const StarAtlasOrderModel = model<StarAtlasOrder>('StarAtlasOrder', starAtlasOrderSchema);
+export const StarAtlasOrderModel = model<StarAtlasOrder>('StarAtlasOrder', starAtlasOrderSchema);
+
 export default StarAtlasOrderModel;
