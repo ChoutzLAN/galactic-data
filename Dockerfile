@@ -16,6 +16,9 @@ COPY --chown=myappuser:myappuser package*.json ./
 # Install production dependencies
 RUN npm install
 
+# Update npm to specific version
+RUN npm install -g npm@latest
+
 # Copy the source code into the container
 COPY --chown=myappuser:myappuser . .
 
