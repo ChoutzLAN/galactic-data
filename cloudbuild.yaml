@@ -1,61 +1,51 @@
 steps:
-  # Step 1: Initialize Terraform
-  - name: 'hashicorp/terraform:latest'
-    id: 'Terraform Init'
-    entrypoint: 'sh'
-    args:
-    - '-c'
-    - |
-      terraform init
-
-  # Step 2: Apply Terraform Configuration
-  - name: 'hashicorp/terraform:latest'
-    id: 'Terraform Apply'
-    entrypoint: 'sh'
-    args:
-    - '-c'
-    - |
-      terraform apply -auto-approve
-
-  # Step 3: Build the Docker image
+  # Step 1: Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'Build Docker Image'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/galactic-data-image:$SHORT_SHA', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA', '.']
 
-  # Step 4: Push the Docker image to Google Container Registry
+  # Step 2: Push the Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'Push Docker Image'
-    args: ['push', 'gcr.io/$PROJECT_ID/galactic-data-image:$SHORT_SHA']
+    args: ['push', 'gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA']
 
-  # Step 5: Deploy to Google Cloud Run
+  # Step 3: Setup and Initialize Terraform
+  - name: 'hashicorp/terraform:latest'
+    args: ['init']
+    env:
+      - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
+      - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
+
+  # Step 4: Terraform Plan (Optional step for review)
+  - name: 'hashicorp/terraform:latest'
+    args: ['plan']
+    env:
+      - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
+      - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
+
+  # Step 5: Terraform Apply
+  - name: 'hashicorp/terraform:latest'
+    args: ['apply', '-auto-approve']
+    env:
+      - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
+      - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
+
+  # Step 6: Deploy to Google Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'Deploy to Cloud Run'
-    entrypoint: 'gcloud'
-    args:
-    - 'run'
-    - 'deploy'
-    - 'galactic-data-service'
-    - '--image'
-    - 'gcr.io/$PROJECT_ID/galactic-data-image:$SHORT_SHA'
-    - '--region'
-    - 'australia-southeast1'
-    - '--platform'
-    - 'managed'
-    - '--allow-unauthenticated'
+    args: [
+      'run', 'deploy', '${_GCP_BUILD_DEPLOYMENT}',
+      '--image', 'gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA',
+      '--region', '${_GCP_REGION}',
+      '--platform', 'managed',
+      '--allow-unauthenticated'
+    ]
+    env:
+      - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
 
-# Use Secret Manager for sensitive information
-availableSecrets:
-  secretManager:
-  # List secrets required by Terraform or the application
-  - versionName: projects/_/secrets/GCP_SA_KEY/version/latest
-    env: 'GCP_SA_KEY'
-  # Add other secrets as needed
-
-# Substitute variables
+# Substitutions for custom variables
 substitutions:
-  _GCP_PROJECT_ID: 'galactic-data'
+  _DOCKER_IMAGE: 'galactic-data-image'
+  _GCP_SA_KEY_PATH_LOCAL: 'E:/PC-1_PROJECTS/galactic-data/keys/galactic-data-bd173651ac70.json'
+  _GCP_BUILD_DEPLOYMENT: 'galactic-data-service'
   _GCP_REGION: 'australia-southeast1'
 
-# Define options for triggering this build
-options:
-  substitutionOption: 'ALLOW_LOOSE'
+# Set the timeout for the build
+timeout: '1200s' # Set to 20 minutes
