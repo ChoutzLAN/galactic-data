@@ -8,8 +8,8 @@ dotenv.config();
 export async function getPrices(): Promise<void> {
   // Assuming TOKEN_IDS is a comma-separated string of token IDs
   const tokenIds = process.env.TOKEN_IDS;
-  // Use the COINGECKO_API_URL environment variable
-  const apiUrl = `${process.env.COINGECKO_API_URL}&vs_currency=usd&ids=${tokenIds}`;
+  // Use the COINGECKO_API_URL_PUBLIC_PUBLIC environment variable
+  const apiUrl = `${process.env.COINGECKO_API_URL_PUBLIC}&vs_currency=usd&ids=${tokenIds}`;
   console.log('Fetching prices from CoinGecko API...', apiUrl);
 
   try {

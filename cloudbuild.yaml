@@ -1,0 +1,61 @@
+steps:
+  # Step 1: Initialize Terraform
+  - name: 'hashicorp/terraform:latest'
+    id: 'Terraform Init'
+    entrypoint: 'sh'
+    args:
+    - '-c'
+    - |
+      terraform init
+
+  # Step 2: Apply Terraform Configuration
+  - name: 'hashicorp/terraform:latest'
+    id: 'Terraform Apply'
+    entrypoint: 'sh'
+    args:
+    - '-c'
+    - |
+      terraform apply -auto-approve
+
+  # Step 3: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Docker Image'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/galactic-data-image:$SHORT_SHA', '.']
+
+  # Step 4: Push the Docker image to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Docker Image'
+    args: ['push', 'gcr.io/$PROJECT_ID/galactic-data-image:$SHORT_SHA']
+
+  # Step 5: Deploy to Google Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to Cloud Run'
+    entrypoint: 'gcloud'
+    args:
+    - 'run'
+    - 'deploy'
+    - 'galactic-data-service'
+    - '--image'
+    - 'gcr.io/$PROJECT_ID/galactic-data-image:$SHORT_SHA'
+    - '--region'
+    - 'australia-southeast1'
+    - '--platform'
+    - 'managed'
+    - '--allow-unauthenticated'
+
+# Use Secret Manager for sensitive information
+availableSecrets:
+  secretManager:
+  # List secrets required by Terraform or the application
+  - versionName: projects/_/secrets/GCP_SA_KEY/version/latest
+    env: 'GCP_SA_KEY'
+  # Add other secrets as needed
+
+# Substitute variables
+substitutions:
+  _GCP_PROJECT_ID: 'galactic-data'
+  _GCP_REGION: 'australia-southeast1'
+
+# Define options for triggering this build
+options:
+  substitutionOption: 'ALLOW_LOOSE'

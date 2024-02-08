@@ -1,3 +1,4 @@
+# .gitignore
 # Ignore build artifacts and secrets folders
 lib/
 keys/
@@ -20,6 +21,33 @@ lerna-debug.log*
 #.devcontainer
 #.github
 #scripts/
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Terraform plan output
+*.tfplan
+
+# Terraform variables file that may contain sensitive data
+*.tfvars
+
+# Terraform backup files
+*.backup
+
+# Terraform module directories
+.terraform/
+
+# Ignore override files as they are usually used for local configuration
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
 
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
