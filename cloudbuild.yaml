@@ -1,3 +1,4 @@
+# cloudbuild.yaml
 steps:
   # Step 1: Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
@@ -7,45 +8,40 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA']
 
-  # Step 3: Setup and Initialize Terraform
+  # Step 3: Setup and Initialize Terraform (Removed GOOGLE_APPLICATION_CREDENTIALS)
   - name: 'hashicorp/terraform:latest'
     entrypoint: 'sh'
     args: ['-c', 'cd terraform && terraform init']
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
-      - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
 
-  # Step 4: Terraform Plan (Optional step for review)
+  # Step 4: Terraform Plan (Optional step for review, Removed GOOGLE_APPLICATION_CREDENTIALS and GCP_SA_KEY_PATH variable)
   - name: 'hashicorp/terraform:latest'
     entrypoint: 'sh'
     args: 
       - '-c'
       - |
         cd terraform && terraform plan \
-          -var 'GCP_SA_KEY_PATH=${_GCP_SA_KEY_PATH_LOCAL}' \
           -var 'GCP_PROJECT_ID=$PROJECT_ID' \
           -var 'GCP_REGION=${_GCP_REGION}' \
           -var 'DOCKER_IMAGE=${_DOCKER_IMAGE}' \
           -var 'IMAGE_TAG=$SHORT_SHA'
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
-      - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
 
-  # Step 5: Terraform Apply
+  # Step 5: Terraform Apply (Removed GOOGLE_APPLICATION_CREDENTIALS and GCP_SA_KEY_PATH variable)
   - name: 'hashicorp/terraform:latest'
     entrypoint: 'sh'
     args: 
       - '-c'
       - |
         cd terraform && terraform apply -auto-approve \
-          -var 'GCP_SA_KEY_PATH=${_GCP_SA_KEY_PATH_LOCAL}' \
           -var 'GCP_PROJECT_ID=$PROJECT_ID' \
           -var 'GCP_REGION=${_GCP_REGION}' \
           -var 'DOCKER_IMAGE=${_DOCKER_IMAGE}' \
           -var 'IMAGE_TAG=$SHORT_SHA'
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
-      - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
 
   # Step 6: Deploy to Google Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -61,7 +57,6 @@ steps:
 
 substitutions:
   _DOCKER_IMAGE: 'galactic-data-docker-image'
-  _GCP_SA_KEY_PATH_LOCAL: 'E:/PC-1_PROJECTS/galactic-data/keys/galactic-data-bd173651ac70.json'
   _GCP_BUILD_DEPLOYMENT: 'galactic-data-service'
   _GCP_REGION: 'australia-southeast1'
 
