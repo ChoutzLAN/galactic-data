@@ -9,21 +9,24 @@ steps:
 
   # Step 3: Setup and Initialize Terraform
   - name: 'hashicorp/terraform:latest'
-    args: ['init']
+    entrypoint: 'sh'
+    args: ['-c', 'cd terraform && terraform init']
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
       - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
 
   # Step 4: Terraform Plan (Optional step for review)
   - name: 'hashicorp/terraform:latest'
-    args: ['plan']
+    entrypoint: 'sh'
+    args: ['-c', 'cd terraform && terraform plan']
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
       - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
 
   # Step 5: Terraform Apply
   - name: 'hashicorp/terraform:latest'
-    args: ['apply', '-auto-approve']
+    entrypoint: 'sh'
+    args: ['-c', 'cd terraform && terraform apply -auto-approve']
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
       - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
