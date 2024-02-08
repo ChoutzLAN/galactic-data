@@ -18,7 +18,15 @@ steps:
   # Step 4: Terraform Plan (Optional step for review)
   - name: 'hashicorp/terraform:latest'
     entrypoint: 'sh'
-    args: ['-c', 'cd terraform && terraform plan']
+    args: 
+      - '-c'
+      - |
+        cd terraform && terraform plan \
+          -var 'GCP_SA_KEY_PATH=${_GCP_SA_KEY_PATH_LOCAL}' \
+          -var 'GCP_PROJECT_ID=$PROJECT_ID' \
+          -var 'GCP_REGION=${_GCP_REGION}' \
+          -var 'DOCKER_IMAGE=${_DOCKER_IMAGE}' \
+          -var 'IMAGE_TAG=$SHORT_SHA'
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
       - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
@@ -26,7 +34,15 @@ steps:
   # Step 5: Terraform Apply
   - name: 'hashicorp/terraform:latest'
     entrypoint: 'sh'
-    args: ['-c', 'cd terraform && terraform apply -auto-approve']
+    args: 
+      - '-c'
+      - |
+        cd terraform && terraform apply -auto-approve \
+          -var 'GCP_SA_KEY_PATH=${_GCP_SA_KEY_PATH_LOCAL}' \
+          -var 'GCP_PROJECT_ID=$PROJECT_ID' \
+          -var 'GCP_REGION=${_GCP_REGION}' \
+          -var 'DOCKER_IMAGE=${_DOCKER_IMAGE}' \
+          -var 'IMAGE_TAG=$SHORT_SHA'
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
       - 'GOOGLE_APPLICATION_CREDENTIALS=${_GCP_SA_KEY_PATH_LOCAL}'
@@ -43,12 +59,10 @@ steps:
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
 
-# Substitutions for custom variables
 substitutions:
-  _DOCKER_IMAGE: 'galactic-data-image'
+  _DOCKER_IMAGE: 'galactic-data-docker-image'
   _GCP_SA_KEY_PATH_LOCAL: 'E:/PC-1_PROJECTS/galactic-data/keys/galactic-data-bd173651ac70.json'
   _GCP_BUILD_DEPLOYMENT: 'galactic-data-service'
   _GCP_REGION: 'australia-southeast1'
 
-# Set the timeout for the build
 timeout: '1200s' # Set to 20 minutes
