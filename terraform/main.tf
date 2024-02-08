@@ -6,7 +6,7 @@ resource "google_cloud_run_service" "default" {
   template {
     spec {
       containers {
-        image = "gcr.io/${var.GCP_PROJECT_ID}/${var.DOCKER_IMAGE}:${var.IMAGE_TAG}"
+        image = "australia-southeast1-docker.pkg.dev/${var.GCP_PROJECT_ID}/galactic-data-artifact-registry-0/${var.DOCKER_IMAGE}:${var.IMAGE_TAG}"
       }
     }
   }

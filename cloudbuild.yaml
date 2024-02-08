@@ -2,11 +2,12 @@
 steps:
   # Step 1: Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA', '.']
+    args: ['build', '-t', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/galactic-data-artifact-registry-0/${_DOCKER_IMAGE}:$SHORT_SHA', '.']
 
-  # Step 2: Push the Docker image to Google Container Registry
+  # Step 2: Push the Docker image to Google Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA']
+    args: ['push', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/galactic-data-artifact-registry-0/${_DOCKER_IMAGE}:$SHORT_SHA']
+
 
   # Step 3: Setup and Initialize Terraform
   - name: 'hashicorp/terraform:latest'
