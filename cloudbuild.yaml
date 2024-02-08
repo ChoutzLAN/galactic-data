@@ -8,14 +8,14 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA']
 
-  # Step 3: Setup and Initialize Terraform (Removed GOOGLE_APPLICATION_CREDENTIALS)
+  # Step 3: Setup and Initialize Terraform
   - name: 'hashicorp/terraform:latest'
     entrypoint: 'sh'
     args: ['-c', 'cd terraform && terraform init']
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
 
-  # Step 4: Terraform Plan (Optional step for review, Removed GOOGLE_APPLICATION_CREDENTIALS and GCP_SA_KEY_PATH variable)
+  # Step 4: Terraform Plan
   - name: 'hashicorp/terraform:latest'
     entrypoint: 'sh'
     args: 
@@ -29,7 +29,7 @@ steps:
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
 
-  # Step 5: Terraform Apply (Removed GOOGLE_APPLICATION_CREDENTIALS and GCP_SA_KEY_PATH variable)
+  # Step 5: Terraform Apply
   - name: 'hashicorp/terraform:latest'
     entrypoint: 'sh'
     args: 
@@ -45,13 +45,15 @@ steps:
 
   # Step 6: Deploy to Google Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    args: [
-      'run', 'deploy', '${_GCP_BUILD_DEPLOYMENT}',
-      '--image', 'gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA',
-      '--region', '${_GCP_REGION}',
-      '--platform', 'managed',
-      '--allow-unauthenticated'
-    ]
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_GCP_BUILD_DEPLOYMENT}'
+      - '--image=gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA'
+      - '--region=${_GCP_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
     env:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
 
