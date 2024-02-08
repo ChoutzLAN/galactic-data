@@ -63,4 +63,4 @@ substitutions:
   _GCP_BUILD_DEPLOYMENT: 'galactic-data-service'
   _GCP_REGION: 'australia-southeast1'
 
-timeout: '600s' # Set to 1 minutes
+timeout: '600s' # Set to 10 minutes
