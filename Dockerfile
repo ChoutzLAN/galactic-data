@@ -13,10 +13,9 @@ RUN npm install --legacy-peer-deps && npm cache clean --force
 
 # Development stage with development tools and Terraform
 FROM base AS development
-# Assuming there are dev dependencies
 COPY --chown=myappuser:myappuser . .
-RUN npm install --only=development && \
-    npm install -g npm@latest
+# Removed the command to install npm globally as myappuser due to permissions issue
+RUN npm install --only=development
 CMD ["npm", "run", "dev"]
 
 # Production stage for a slim image
