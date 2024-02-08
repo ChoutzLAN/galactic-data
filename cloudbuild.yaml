@@ -51,7 +51,7 @@ steps:
       - 'run'
       - 'deploy'
       - '${_GCP_BUILD_DEPLOYMENT}'
-      - '--image=gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:latest'
+      - '--image=gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA'
       - '--region=${_GCP_REGION}'
       - '--platform=managed'
       - '--allow-unauthenticated'
