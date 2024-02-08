@@ -51,7 +51,7 @@ steps:
       - 'run'
       - 'deploy'
       - '${_GCP_BUILD_DEPLOYMENT}'
-      - '--image=gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:$SHORT_SHA'
+      - '--image=gcr.io/$PROJECT_ID/${_DOCKER_IMAGE}:latest'
       - '--region=${_GCP_REGION}'
       - '--platform=managed'
       - '--allow-unauthenticated'
@@ -59,8 +59,8 @@ steps:
       - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
 
 substitutions:
-  _DOCKER_IMAGE: 'galactic-data-docker-image'
+  _DOCKER_IMAGE: 'galactic-data-docker-image-0'
   _GCP_BUILD_DEPLOYMENT: 'galactic-data-service'
   _GCP_REGION: 'australia-southeast1'
 
-timeout: '1800s' # Set to 30 minutes
+timeout: '600s' # Set to 1 minutes
