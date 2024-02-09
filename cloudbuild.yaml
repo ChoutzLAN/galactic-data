@@ -60,7 +60,7 @@ steps:
 
 substitutions:
   _DOCKER_IMAGE: 'galactic-data-docker-image-0'
-  _GCP_BUILD_DEPLOYMENT: 'galactic-data-service'
+  _GCP_BUILD_DEPLOYMENT: 'galactic-data-service-0'
   _GCP_REGION: 'australia-southeast1'
 
 timeout: '600s' # Set to 10 minutes
