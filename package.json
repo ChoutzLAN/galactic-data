@@ -1,7 +1,7 @@
 {
   "name": "galactic-data",
   "version": "0.1.1",
-  "description": "Collects pricing data for the star atlas ecosystem.",
+  "description": "Serving the Galactic Data API as an API for the star atlas ecosystem.",
   "main": "dist/index.js",
   "type": "module",
   "directories": {
