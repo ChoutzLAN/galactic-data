@@ -1,6 +1,6 @@
 # terraform/main.tf
 resource "google_cloud_run_service" "default" {
-  name     = "galactic-data-service"
+  name     = "galactic-data-service-0"
   location = var.GCP_REGION
 
   template {
