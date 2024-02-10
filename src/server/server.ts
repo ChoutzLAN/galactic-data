@@ -2,8 +2,8 @@
 import * as http from 'http';
 import * as dotenv from 'dotenv';
 import { getPrices } from '../services/coingecko.js'; // Assuming getPrices now updates the DB
-import { CoingeckoTokenModel, CoingeckoToken } from '../models/coingeckoTokenModel.js';
-import { StarAtlasOrderModel, StarAtlasOrder } from '../models/staratlasOrderModel.js';
+import { CoingeckoToken } from '../models/coingeckoDataModel.js';
+import { StarAtlasOrder } from '../models/staratlasOrderModel.js';
 
 dotenv.config();
 

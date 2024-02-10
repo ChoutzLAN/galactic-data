@@ -1,7 +1,7 @@
 // src/services/coingecko.ts
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
-import CoingeckoTokenModel from '../models/coingeckoTokenModel.js'; // Import the model
+import CoingeckoTokenModel from '../models/coingeckoDataModel.js'; // Import the model
 
 dotenv.config();
 
