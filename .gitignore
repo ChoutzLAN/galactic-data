@@ -27,6 +27,7 @@ Firestore.rules
 Firestore.indexes.json
 Firestore.rules.backup
 firebase/rules/
+rules/
 
 # Terraform state files
 *.tfstate
