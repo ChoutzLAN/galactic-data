@@ -22,6 +22,12 @@ lerna-debug.log*
 #.github
 scripts/
 
+# Firestore
+Firestore.rules
+Firestore.indexes.json
+Firestore.rules.backup
+firebase/rules/
+
 # Terraform state files
 *.tfstate
 *.tfstate.*
