@@ -20,7 +20,7 @@ lerna-debug.log*
 #.dockerfile
 #.devcontainer
 #.github
-#scripts/
+scripts/
 
 # Terraform state files
 *.tfstate
