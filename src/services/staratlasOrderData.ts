@@ -1,11 +1,10 @@
 // src\services\staratlasOrderData.ts
-// src/services/staratlasOrderData.ts
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { Program, AnchorProvider } from '@project-serum/anchor';
 import dotenv from 'dotenv';
 import { GALACTIC_MARKETPLACE_IDL, Order as OrderType } from '@staratlas/galactic-marketplace';
-import { db } from '../utils/connection'; // Firestore connection utility
-import StarAtlasOrder from '../models/staratlasOrderDataModel.js';
+import { db } from '../utils/connection.js'; // Firestore connection utility
+import staratlasOrderDataModel from '../models/staratlasOrderDataModel.js';
 
 dotenv.config();
 
@@ -34,7 +33,7 @@ export async function fetchAndUpsertOrderAccounts(): Promise<void> {
         const programAccounts = await galacticMarketplaceProgram.account.orderAccount.all();
         
         for (const account of programAccounts) {
-            const orderData: StarAtlasOrder = {
+            const orderData: staratlasOrderDataModel = {
                 publicKey: account.publicKey.toString(),
                 account: {
                     orderInitializerPubkey: account.account.orderInitializerPubkey.toString(),

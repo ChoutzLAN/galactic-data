@@ -4,7 +4,7 @@ interface OrderSide {
   buy?: object;
 }
 
-interface StarAtlasOrder {
+interface staratlasOrderDataModel {
   publicKey: string; // Document ID in Firestore
   account: {
     orderInitializerPubkey: string;
@@ -20,4 +20,4 @@ interface StarAtlasOrder {
   };
 }
 
-export default StarAtlasOrder;
+export default staratlasOrderDataModel;

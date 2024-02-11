@@ -2,7 +2,6 @@
 import * as http from 'http';
 import * as dotenv from 'dotenv';
 import { db } from '../utils/connection.js'; // Import Firestore connection utility
-
 dotenv.config();
 
 export async function fetchDataFromFirestore(): Promise<any> {
@@ -20,6 +19,28 @@ export async function fetchDataFromFirestore(): Promise<any> {
 
   return { staratlasOrders, coingeckoData };
 }
+
+async function fetchSnippetOfStarAtlasOrders(): Promise<any[]> {
+  const ordersCollection = db.collection('starAtlasOrders');
+  const querySnapshot = await ordersCollection.limit(100).get(); // Adjust limit as needed
+  return querySnapshot.docs.map(doc => doc.data());
+}
+
+async function checkFirestoreDatabase(): Promise<void> {
+  console.log('Checking Firestore database content...');
+  const collectionRef = db.collection('starAtlasOrders');
+  try {
+    const snapshot = await collectionRef.limit(5).get(); // Fetch up to 5 documents
+    if (snapshot.empty) {
+      console.log('No documents found in Firestore.');
+    } else {
+      snapshot.docs.forEach(doc => console.log(doc.id, '=>', doc.data()));
+    }
+  } catch (error) {
+    console.error('Error accessing Firestore:', error);
+  }
+}
+
 
 async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
   if (req.url === '/favicon.ico') {
@@ -41,8 +62,7 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
 }
 
 export function startServer(): void {
-  const port = process.env.PORT || 8080; // Use the PORT environment variable or default to 8080
-
+  const port = process.env.PORT || 8080;
   const server = http.createServer((req, res) => {
       handleRequest(req, res).catch(error => {
           console.error('Unhandled error:', error);
@@ -52,8 +72,8 @@ export function startServer(): void {
           }
       });
   });
-
   server.listen(port, () => {
       console.log(`Server running on http://localhost:${port}`);
+      checkFirestoreDatabase().catch(console.error); // Perform Firestore check on server start
   });
 }

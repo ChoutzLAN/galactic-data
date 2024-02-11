@@ -8,3 +8,5 @@ async function init() {
 }
 
 init().catch(console.error);
+
+const programAccounts = []; // Declare and assign a value to the variable programAccounts
