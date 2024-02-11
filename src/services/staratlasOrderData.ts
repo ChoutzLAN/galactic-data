@@ -1,32 +1,32 @@
-// src/services/galacticMarketplace.ts
+// src\services\staratlasOrderData.ts
+// src/services/staratlasOrderData.ts
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { Program, AnchorProvider } from '@project-serum/anchor';
-import dotenv from 'dotenv'; // Make sure to import dotenv
-dotenv.config(); // Load environment variables
+import dotenv from 'dotenv';
 import { GALACTIC_MARKETPLACE_IDL, Order as OrderType } from '@staratlas/galactic-marketplace';
-import StarAtlasOrderModel from '../models/staratlasOrderModel';
+import { db } from '../utils/connection'; // Firestore connection utility
+import StarAtlasOrder from '../models/staratlasOrderDataModel.js';
 
-// Use environment variables directly
-if (!process.env.GALACTIC_MARKETPLACE_PROGRAM_ID) {
-    throw new Error('GALACTIC_MARKETPLACE_PROGRAM_ID is not defined in .env');
-}
+dotenv.config();
 
-const GALACTIC_MARKETPLACE_PROGRAM_ID = new PublicKey(process.env.GALACTIC_MARKETPLACE_PROGRAM_ID);
-console.log("Program ID:", GALACTIC_MARKETPLACE_PROGRAM_ID.toString());
-
+const GALACTIC_MARKETPLACE_PROGRAM_ID = new PublicKey(process.env.GALACTIC_MARKETPLACE_PROGRAM_ID || '');
 const NODE_RPC_HOST = process.env.NODE_RPC_HOST || clusterApiUrl('mainnet-beta');
-console.log("Connected RPC Host:", NODE_RPC_HOST);
 const connection = new Connection(NODE_RPC_HOST, 'confirmed');
-
-// Assuming SDU_TOKEN_ADDRESS is set in your .env
-const sduTokenAddress = process.env.SDU_TOKEN_ADDRESS;
-console.log("SDU Token Address:", sduTokenAddress);
-
 const provider = new AnchorProvider(connection, {} as any, { commitment: 'confirmed' });
 
-/**
- * Fetches order accounts from the Galactic Marketplace Program and updates them in MongoDB.
- */
+// Adjusted function to upsert data into Firestore
+async function upsertOrderDataInFirestore<T extends { [x: string]: any }>(collectionName: string, documentId: string, data: T): Promise<void> {
+  const docRef = db.collection(collectionName).doc(documentId);
+  const doc = await docRef.get();
+  if (!doc.exists) {
+    console.log(`Creating document ${documentId} in collection ${collectionName}`);
+    await docRef.set(data);
+  } else {
+    console.log(`Updating document ${documentId} in collection ${collectionName}`);
+    await docRef.update(data);
+  }
+}
+
 export async function fetchAndUpsertOrderAccounts(): Promise<void> {
     const galacticMarketplaceProgram = new Program<typeof GALACTIC_MARKETPLACE_IDL>(GALACTIC_MARKETPLACE_IDL, GALACTIC_MARKETPLACE_PROGRAM_ID, provider);
 
@@ -34,15 +34,15 @@ export async function fetchAndUpsertOrderAccounts(): Promise<void> {
         const programAccounts = await galacticMarketplaceProgram.account.orderAccount.all();
         
         for (const account of programAccounts) {
-            const orderData = {
-                publicKey: account.publicKey.toString(), // Convert PublicKey to string
+            const orderData: StarAtlasOrder = {
+                publicKey: account.publicKey.toString(),
                 account: {
                     orderInitializerPubkey: account.account.orderInitializerPubkey.toString(),
                     currencyMint: account.account.currencyMint.toString(),
                     assetMint: account.account.assetMint.toString(),
                     initializerCurrencyTokenAccount: account.account.initializerCurrencyTokenAccount.toString(),
                     initializerAssetTokenAccount: account.account.initializerAssetTokenAccount.toString(),
-                    orderSide: account.account.orderSide, // Direct use, assuming appropriate conversion
+                    orderSide: account.account.orderSide,
                     price: account.account.price.toString(),
                     orderOriginationQty: account.account.orderOriginationQty.toString(),
                     orderRemainingQty: account.account.orderRemainingQty.toString(),
@@ -50,10 +50,11 @@ export async function fetchAndUpsertOrderAccounts(): Promise<void> {
                 }
             };
 
-            await StarAtlasOrderModel.findOneAndUpdate({ publicKey: orderData.publicKey }, orderData, { upsert: true, new: true });
+            // Explicitly cast to match Firestore's expected type
+            await upsertOrderDataInFirestore<{ [key: string]: any }>('staratlasGalacticMarketplace', 'data', orderData as { [key: string]: any });
         }
 
-        console.log('Order data has been successfully updated in MongoDB.');
+        console.log('Order data has been successfully updated in Firestore.');
     } catch (error) {
         console.error("Error during the process:", error);
     }

@@ -1,4 +1,4 @@
-// src/utils/update.ts
+// src\utils\update.ts
 // Utility function to check if the JSON file needs updating
 import { promises as fs } from 'fs';
 

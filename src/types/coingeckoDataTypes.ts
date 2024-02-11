@@ -1,4 +1,4 @@
-// src/types/coingeckoTypes.ts
+// src\types\coingeckoDataTypes.ts
 export interface CoingeckoFullTokenInfoType {
   id: string;
   symbol: string;

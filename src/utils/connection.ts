@@ -1,13 +1,33 @@
-// src/utils/connection.ts
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+// src\utils\connection.ts
+import { initializeApp, cert, getApps, getApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import * as fs from 'fs';
+import * as dotenv from 'dotenv';
+
 dotenv.config();
 
-export const connectToDatabase = async (): Promise<void> => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-    console.log('Successfully connected to MongoDB Atlas!');
-  } catch (error) {
-    console.error('Error connecting to MongoDB Atlas:', error);
-  }
+export const connectToFirestore = () => {
+    if (getApps().length === 0) { // Check if a Firebase app has already been initialized
+        const serviceAccountPath = process.env.FIRESTORE_PRIVATE_KEY_PATH_LOCAL;
+
+        if (!serviceAccountPath) {
+            throw new Error('FIRESTORE_PRIVATE_KEY_PATH_LOCAL environment variable is not set.');
+        }
+
+        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+
+        initializeApp({
+            credential: cert(serviceAccount)
+        });
+    } else {
+        console.log('Firebase app already initialized, using existing app.');
+    }
+
+    const db = getFirestore(getApp()); // Use the existing app if already initialized
+    console.log('Connected to Firestore');
+
+    return db;
 };
+// Export the Firestore database instance
+export const db = connectToFirestore();
+

@@ -1,4 +1,4 @@
-// src/types/staratlasOrders.ts
+// src\types\staratlasOrderDataTypes.ts
 import { PublicKey } from "@solana/web3.js"; // Assuming PublicKey is used for identifiers
 
 export interface OrderSide {

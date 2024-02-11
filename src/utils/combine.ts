@@ -1,7 +1,7 @@
-// src/utils/combine.ts
+// src\utils\combine.ts
 import NodeCache from 'node-cache';
-import { staratlasOrderAccountType } from '../types/staratlasOrdersTypes';
-import { coingeckoTokenType } from '../types/coingeckoTypes';
+import { staratlasOrderAccountType } from '../types/staratlasOrderDataTypes';
+import { coingeckoTokenType } from '../types/coingeckoDataTypes';
 
 const cache = new NodeCache();
 

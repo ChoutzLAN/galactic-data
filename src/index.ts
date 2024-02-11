@@ -1,5 +1,10 @@
-// src/index.ts
-import { startServer } from './server/server.js'; // Assuming we move the HTTP server logic to server.ts
-startServer();
-import { connectToDatabase } from './utils/connection.js';
-connectToDatabase().catch(console.error);
+// src\index.ts
+import { connectToFirestore } from './utils/connection.js';
+import { startServer } from './server/server.js';
+
+async function init() {
+    await connectToFirestore(); // Assume this is modified to return a Promise
+    startServer();
+}
+
+init().catch(console.error);
