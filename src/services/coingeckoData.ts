@@ -1,5 +1,6 @@
 // src\services\coingeckoData.ts
 import fetch from 'node-fetch';
+
 import { db } from '../utils/connection.js';
 import CoingeckoToken from '../models/coingeckoDataModel.js';
 import dotenv from 'dotenv';
