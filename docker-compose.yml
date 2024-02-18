@@ -12,5 +12,5 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     env_file:
-      - .env # Make sure this file contains your MongoDB Atlas connection string
-    command: npm run dev # Adjust based on your start script
+      - .env
+    command: npm run dev
