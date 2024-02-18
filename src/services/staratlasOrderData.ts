@@ -1,10 +1,10 @@
 // src\services\staratlasOrderData.ts
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { Program, AnchorProvider } from '@project-serum/anchor';
-import dotenv from 'dotenv';
 import { GALACTIC_MARKETPLACE_IDL, Order as OrderType } from '@staratlas/galactic-marketplace';
 import { db } from '../utils/connection.js'; // Firestore connection utility
 import staratlasOrderDataModel from '../models/staratlasOrderDataModel.js';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ const provider = new AnchorProvider(connection, {} as any, { commitment: 'confir
 
 // Adjusted function to upsert data into Firestore
 async function upsertOrderDataInFirestore<T extends { [x: string]: any }>(collectionName: string, documentId: string, data: T): Promise<void> {
-  const docRef = db.collection(collectionName).doc(documentId);
+  const docRef = db().collection(collectionName).doc(documentId); // Access the Firestore connection using db()
   const doc = await docRef.get();
   if (!doc.exists) {
     console.log(`Creating document ${documentId} in collection ${collectionName}`);

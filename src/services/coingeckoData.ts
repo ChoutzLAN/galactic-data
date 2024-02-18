@@ -1,14 +1,14 @@
 // src\services\coingeckoData.ts
 import fetch from 'node-fetch';
-import dotenv from 'dotenv';
 import { db } from '../utils/connection.js';
 import CoingeckoToken from '../models/coingeckoDataModel.js';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
 // Function to update or create data in Firestore
 async function upsertDataInFirestore<T extends { [x: string]: any }>(collectionName: string, documentId: string, data: T): Promise<void> {
-  const docRef = db.collection(collectionName).doc(documentId);
+  const docRef = db().collection(collectionName).doc(documentId);
   const doc = await docRef.get();
   if (!doc.exists) {
     console.log(`Creating document ${documentId} in collection ${collectionName}`);

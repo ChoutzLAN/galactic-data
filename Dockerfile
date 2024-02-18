@@ -1,26 +1,33 @@
-# Dockerfile 
-FROM node:21 AS base
+# Use Node.js 21 as the base image
+FROM node:21 AS builder
+
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Create a non-root user and ensure the working directory is owned by this user
-RUN useradd --create-home myappuser && \
-    chown -R myappuser:myappuser /usr/src/app
-USER myappuser
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
-# Install node modules based on the environment
-COPY --chown=myappuser:myappuser package*.json ./
-RUN npm install --legacy-peer-deps && npm cache clean --force
+# Install dependencies
+RUN npm install --legacy-peer-deps
 
-# Development stage with development tools and Terraform
-FROM base AS development
-COPY --chown=myappuser:myappuser . .
-# Removed the command to install npm globally as myappuser due to permissions issue
-RUN npm install --only=development
-CMD ["npm", "run", "dev"]
+# Copy the rest of the application code
+COPY . .
 
-# Production stage for a slim image
-FROM base AS production
-COPY --chown=myappuser:myappuser . .
+# Compile TypeScript to JavaScript
 RUN npm run build
+
+# Start a new, final image to reduce size
+FROM node:21-slim
+
+# Create a non-root user and set the working directory
+RUN useradd --create-home appuser
+WORKDIR /home/appuser
+USER appuser
+
+# Copy the build artifacts from the previous stage
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+
+# Expose port 8080 and run the application
 EXPOSE 8080
 CMD ["node", "dist/index.js"]

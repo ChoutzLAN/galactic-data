@@ -1,10 +1,15 @@
-// src\index.ts
-import { connectToFirestore } from './utils/connection.js';
-import { startServer } from './server/server.js';
+// src/index.ts
+import express from 'express';
+import { connectToFirestore } from './utils/connection';
 
-async function init() {
-    await connectToFirestore(); // Assume this is modified to return a Promise
-    startServer();
+async function startApplication() {
+  await connectToFirestore();
+  const app = express();
+
+  // Define routes and middleware
+
+  const port = process.env.PORT || 8080;
+  app.listen(port, () => console.log(`Server listening on port ${port}`));
 }
 
-init().catch(console.error);
+startApplication().catch(console.error);
