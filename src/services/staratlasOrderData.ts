@@ -9,7 +9,7 @@ import staratlasOrderDataModel from '../models/staratlasOrderDataModel.js';
 dotenv.config();
 
 const GALACTIC_MARKETPLACE_PROGRAM_ID = new PublicKey(process.env.GALACTIC_MARKETPLACE_PROGRAM_ID || '');
-const NODE_RPC_HOST = process.env.NODE_RPC_HOST || clusterApiUrl('mainnet-beta');
+const NODE_RPC_HOST = process.env.SECRET_NODE_RPC_HOST || clusterApiUrl('mainnet-beta');
 const connection = new Connection(NODE_RPC_HOST, 'confirmed');
 const provider = new AnchorProvider(connection, {} as any, { commitment: 'confirmed' });
 
