@@ -1,33 +1,37 @@
-// src\utils\connection.ts
-import { initializeApp, cert, getApps, getApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import * as fs from 'fs';
-import * as dotenv from 'dotenv';
+// src/utils/connection.ts
+import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+import { initializeApp, cert, getApp, getApps } from 'firebase-admin/app';
+import { getFirestore, Firestore } from 'firebase-admin/firestore';
 
-dotenv.config();
+let firestoreDb: Firestore | null = null;
 
-export const connectToFirestore = () => {
-    if (getApps().length === 0) { // Check if a Firebase app has already been initialized
-        const serviceAccountPath = process.env.FIRESTORE_PRIVATE_KEY_PATH_LOCAL;
+const secretClient = new SecretManagerServiceClient();
 
-        if (!serviceAccountPath) {
-            throw new Error('FIRESTORE_PRIVATE_KEY_PATH_LOCAL environment variable is not set.');
-        }
+async function accessSecret(secretName: string): Promise<string> {
+  const [version] = await secretClient.accessSecretVersion({ name: secretName });
+  const payload = version.payload?.data?.toString();
+  if (!payload) {
+    throw new Error(`Failed to access secret version for ${secretName}`);
+  }
+  return payload;
+}
 
-        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-
-        initializeApp({
-            credential: cert(serviceAccount)
-        });
-    } else {
-        console.log('Firebase app already initialized, using existing app.');
-    }
-
-    const db = getFirestore(getApp()); // Use the existing app if already initialized
-    console.log('Connected to Firestore');
-
-    return db;
+export const initializeFirestore = async () => {
+  if (getApps().length === 0) {
+    const secretName = `projects/galactic-data/secrets/SECRET_FIRESTORE_PRIVATE_KEY/versions/latest`;
+    const serviceAccountJSON = await accessSecret(secretName);
+    const serviceAccount = JSON.parse(serviceAccountJSON);
+    initializeApp({
+      credential: cert(serviceAccount),
+    });
+  }
+  firestoreDb = getFirestore(getApp());
+  console.log('Firestore initialized');
 };
-// Export the Firestore database instance
-export const db = connectToFirestore();
 
+export const db = () => {
+  if (!firestoreDb) {
+    throw new Error('Firestore has not been initialized. Call initializeFirestore first.');
+  }
+  return firestoreDb;
+};

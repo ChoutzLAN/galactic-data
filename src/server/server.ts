@@ -1,40 +1,42 @@
 // src\server\server.ts
 import * as http from 'http';
 import * as dotenv from 'dotenv';
+
 import { db } from '../utils/connection.js'; // Import Firestore connection utility
+import firebase from 'firebase-admin'; // Import Firebase types
 dotenv.config();
 
 export async function fetchDataFromFirestore(): Promise<any> {
   // Firestore collection references
-  const staratlasOrdersCollection = db.collection('starAtlasOrders');
-  const coingeckoDataCollection = db.collection('coingeckoTokens');
+  const staratlasOrdersCollection = db().collection('starAtlasOrders');
+  const coingeckoDataCollection = db().collection('coingeckoTokens');
 
   // Fetch data from Firestore
   const staratlasOrdersSnapshot = await staratlasOrdersCollection.get();
   const coingeckoDataSnapshot = await coingeckoDataCollection.get();
 
   // Map documents to array of data
-  const staratlasOrders = staratlasOrdersSnapshot.docs.map(doc => doc.data());
-  const coingeckoData = coingeckoDataSnapshot.docs.map(doc => doc.data());
+  const staratlasOrders = staratlasOrdersSnapshot.docs.map((doc: firebase.firestore.DocumentSnapshot) => doc.data());
+  const coingeckoData = coingeckoDataSnapshot.docs.map((doc: firebase.firestore.DocumentSnapshot) => doc.data());
 
   return { staratlasOrders, coingeckoData };
 }
 
 async function fetchSnippetOfStarAtlasOrders(): Promise<any[]> {
-  const ordersCollection = db.collection('starAtlasOrders');
+  const ordersCollection = db().collection('starAtlasOrders');
   const querySnapshot = await ordersCollection.limit(100).get(); // Adjust limit as needed
-  return querySnapshot.docs.map(doc => doc.data());
+  return querySnapshot.docs.map((doc: firebase.firestore.DocumentSnapshot) => doc.data());
 }
 
 async function checkFirestoreDatabase(): Promise<void> {
   console.log('Checking Firestore database content...');
-  const collectionRef = db.collection('starAtlasOrders');
+  const collectionRef = db().collection('starAtlasOrders');
   try {
     const snapshot = await collectionRef.limit(5).get(); // Fetch up to 5 documents
     if (snapshot.empty) {
       console.log('No documents found in Firestore.');
     } else {
-      snapshot.docs.forEach(doc => console.log(doc.id, '=>', doc.data()));
+      snapshot.docs.forEach((doc: firebase.firestore.DocumentSnapshot) => console.log(doc.id, '=>', doc.data()));
     }
   } catch (error) {
     console.error('Error accessing Firestore:', error);
